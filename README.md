@@ -1,6 +1,6 @@
-# 🧪 Labora (Labify) — Monorepo
+# 🧪 Labora — Monorepo
 
-Bem-vindo ao **Labora** (também conhecido como **Labify**), um ecossistema completo para agendamento de consultas e exames laboratoriais. Este repositório é um monorepo que unifica as quatro frentes do projeto (dois frontends e dois backends), facilitando o desenvolvimento, controle de versão e entendimento da arquitetura.
+Bem-vindo ao **Labora**, um ecossistema completo para agendamento de consultas e exames laboratoriais. Este repositório é um monorepo que unifica as quatro frentes do projeto (dois frontends e dois backends), facilitando o desenvolvimento, controle de versão e entendimento da arquitetura.
 
 ---
 
