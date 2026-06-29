@@ -1,0 +1,35 @@
+<div
+    class="main-section relative font-nunito text-sm font-normal antialiased"
+    [ngClass]="[sidebarCollapsed ? 'toggle-sidebar' : '', 'vertical', 'full', 'ltr']"
+>
+    <!--  BEGIN MAIN CONTAINER  -->
+    <div class="relative">
+        <!-- sidebar menu overlay -->
+        <div
+            class="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-sm lg:hidden transition-opacity duration-300"
+            [ngClass]="{ 'opacity-0 pointer-events-none': sidebarCollapsed, 'opacity-100': !sidebarCollapsed }"
+            (click)="onSidebarToggle()"
+        ></div>
+
+        <div class="main-container min-h-screen text-black dark:text-white-dark">
+            <!--  BEGIN SIDEBAR  -->
+            <app-sidebar></app-sidebar>
+            <!--  END SIDEBAR  -->
+
+            <div class="main-content flex flex-col min-h-screen">
+                <!--  BEGIN TOP NAVBAR  -->
+                <app-header
+                    [sidebarCollapsed]="sidebarCollapsed"
+                    (sidebarToggle)="onSidebarToggle()">
+                </app-header>
+                <!--  END TOP NAVBAR  -->
+
+                <!--  BEGIN CONTENT AREA  -->
+                <div class="animation p-6 flex-1">
+                    <router-outlet></router-outlet>
+                </div>
+                <!--  END CONTENT AREA  -->
+            </div>
+        </div>
+    </div>
+</div>

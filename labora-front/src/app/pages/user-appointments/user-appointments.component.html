@@ -1,0 +1,452 @@
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h5 class="font-bold text-lg dark:text-white-light text-gray-800">Meus Agendamentos</h5>
+    <p class="text-xs text-gray-500 mt-0.5">Acompanhe seus exames agendados, acesse preparos e consulte seus resultados.</p>
+  </div>
+</div>
+
+<div class="panel border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] p-6 rounded-xl shadow-sm mb-6">
+  <!-- Filtros e Busca -->
+  <div class="flex flex-col lg:flex-row gap-5 items-center justify-between mb-6">
+    <!-- Barra de Pesquisa e Ordenação -->
+    <div class="flex flex-col sm:flex-row gap-3 w-full lg:max-w-xl">
+      <!-- Barra de Pesquisa -->
+      <div class="relative flex-1 group">
+        <input
+          type="text"
+          class="w-full peer form-input pl-11 pr-4 h-11 rounded-xl bg-gray-50 border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-primary placeholder:text-gray-400 placeholder:font-medium dark:bg-[#121e32] dark:hover:bg-[#0e1726] dark:focus:bg-[#0e1726] transition-all duration-200"
+          placeholder="Buscar por exame ou unidade..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+        />
+        <div class="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400 peer-focus:text-primary transition-colors duration-200 pointer-events-none">
+          <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+      </div>
+      <!-- Ordenação -->
+      <div class="w-full sm:w-48">
+        <select
+          class="form-select h-11 rounded-xl bg-gray-50 border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-primary font-bold text-xs dark:bg-[#121e32] dark:hover:bg-[#0e1726] transition-all cursor-pointer"
+          [(ngModel)]="sortBySelect"
+          (change)="onSortSelectChange()"
+        >
+          <option value="date-desc">Data: Recentes</option>
+          <option value="date-asc">Data: Antigos</option>
+          <option value="name-asc">Exame: A-Z</option>
+          <option value="name-desc">Exame: Z-A</option>
+          <option value="branch-asc">Unidade: A-Z</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Abas / Tabs -->
+    <div class="flex items-center gap-2 overflow-x-auto w-full lg:w-auto pb-3 lg:pb-0 scrollbar-none pt-1">
+      <button
+        type="button"
+        (click)="setTab('todos')"
+        class="px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 whitespace-nowrap"
+        [ngClass]="activeTab === 'todos' ? 'bg-primary text-white shadow-md shadow-primary/30' : 'bg-gray-100 dark:bg-[#0e1726] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#121e32]'"
+      >
+        Todos
+      </button>
+      <button
+        type="button"
+        (click)="setTab('agendados')"
+        class="px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 whitespace-nowrap"
+        [ngClass]="activeTab === 'agendados' ? 'bg-primary text-white shadow-md shadow-primary/30' : 'bg-gray-100 dark:bg-[#0e1726] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#121e32]'"
+      >
+        Confirmados
+      </button>
+      <button
+        type="button"
+        (click)="setTab('pendentes')"
+        class="px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 whitespace-nowrap"
+        [ngClass]="activeTab === 'pendentes' ? 'bg-primary text-white shadow-md shadow-primary/30' : 'bg-gray-100 dark:bg-[#0e1726] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#121e32]'"
+      >
+        Resultados Pendentes
+      </button>
+      <button
+        type="button"
+        (click)="setTab('concluidos')"
+        class="px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 whitespace-nowrap"
+        [ngClass]="activeTab === 'concluidos' ? 'bg-primary text-white shadow-md shadow-primary/30' : 'bg-gray-100 dark:bg-[#0e1726] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#121e32]'"
+      >
+        Concluídos
+      </button>
+      <button
+        type="button"
+        (click)="setTab('cancelados')"
+        class="px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 whitespace-nowrap"
+        [ngClass]="activeTab === 'cancelados' ? 'bg-primary text-white shadow-md shadow-primary/30' : 'bg-gray-100 dark:bg-[#0e1726] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#121e32]'"
+      >
+        Cancelados
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex flex-col justify-center items-center py-24 animate__animated animate__fadeIn">
+    <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+    <p class="text-xs text-gray-400 mt-4">Carregando seus agendamentos...</p>
+  </div>
+
+  <!-- Lista de Agendamentos (Tabela) -->
+  <div *ngIf="!loading && filteredAppointments.length > 0" class="animate__animated animate__fadeIn table-responsive">
+    <table class="w-full border-collapse table-hover">
+      <thead>
+        <tr class="bg-gray-50 dark:bg-[#1a2941] text-gray-500 dark:text-gray-400 font-semibold border-b border-gray-100 dark:border-[#191e3a]">
+          <th (click)="toggleSort('name')" class="px-4 py-3 text-left text-xs uppercase tracking-wider font-bold cursor-pointer select-none hover:text-primary transition-colors">
+            <div class="flex items-center gap-1.5">
+              <span>Exame</span>
+              <span class="inline-block shrink-0">
+                <svg *ngIf="sortOrder === 'asc'" class="w-3.5 h-3.5 transition-colors duration-200" [ngClass]="sortByField === 'name' ? 'text-primary' : 'text-gray-300 dark:text-gray-600'" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                <svg *ngIf="sortOrder === 'desc'" class="w-3.5 h-3.5 transition-colors duration-200" [ngClass]="sortByField === 'name' ? 'text-primary' : 'text-gray-300 dark:text-gray-600'" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+            </div>
+          </th>
+          <th (click)="toggleSort('date')" class="px-4 py-3 text-left text-xs uppercase tracking-wider font-bold cursor-pointer select-none hover:text-primary transition-colors">
+            <div class="flex items-center gap-1.5">
+              <span>Data / Hora</span>
+              <span class="inline-block shrink-0">
+                <svg *ngIf="sortOrder === 'asc'" class="w-3.5 h-3.5 transition-colors duration-200" [ngClass]="sortByField === 'date' ? 'text-primary' : 'text-gray-300 dark:text-gray-600'" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                <svg *ngIf="sortOrder === 'desc'" class="w-3.5 h-3.5 transition-colors duration-200" [ngClass]="sortByField === 'date' ? 'text-primary' : 'text-gray-300 dark:text-gray-600'" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+            </div>
+          </th>
+          <th (click)="toggleSort('branch')" class="px-4 py-3 text-left text-xs uppercase tracking-wider font-bold cursor-pointer select-none hover:text-primary transition-colors">
+            <div class="flex items-center gap-1.5">
+              <span>Unidade</span>
+              <span class="inline-block shrink-0">
+                <svg *ngIf="sortOrder === 'asc'" class="w-3.5 h-3.5 transition-colors duration-200" [ngClass]="sortByField === 'branch' ? 'text-primary' : 'text-gray-300 dark:text-gray-600'" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                <svg *ngIf="sortOrder === 'desc'" class="w-3.5 h-3.5 transition-colors duration-200" [ngClass]="sortByField === 'branch' ? 'text-primary' : 'text-gray-300 dark:text-gray-600'" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+            </div>
+          </th>
+          <th class="px-4 py-3 text-left text-xs uppercase tracking-wider font-bold select-none">Status</th>
+          <th class="px-4 py-3 text-center text-xs uppercase tracking-wider font-bold select-none">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let app of filteredAppointments" class="border-b border-white-light/40 dark:border-[#191e3a] transition-all hover:bg-gray-50/40 dark:hover:bg-[#121e32]/30">
+          <!-- Exame Column -->
+          <td class="px-4 py-3.5 align-middle">
+            <div class="font-extrabold text-sm text-gray-800 dark:text-white-light">
+              {{ app.testName }}
+            </div>
+            <div class="text-[10px] text-gray-400 font-semibold mt-0.5">
+              Solicitado em: {{ formatDate(app.scheduledAt) }}
+            </div>
+          </td>
+
+          <!-- Data / Hora Column -->
+          <td class="px-4 py-3.5 align-middle">
+            <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-semibold">
+              <svg class="w-3.5 h-3.5 text-primary shrink-0 opacity-70" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>{{ formatDate(app.scheduledFor) }}</span>
+            </div>
+          </td>
+
+          <!-- Unidade Column -->
+          <td class="px-4 py-3.5 align-middle max-w-[220px]">
+            <div class="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 font-bold">
+              <svg class="w-3.5 h-3.5 text-primary shrink-0 opacity-70" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span class="truncate" [title]="app.branchName">{{ app.branchName }}</span>
+            </div>
+            <div class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate pl-5" [title]="formatAddress(app.branchAddress)">
+              {{ formatAddress(app.branchAddress) }}
+            </div>
+          </td>
+
+          <!-- Status Column -->
+          <td class="px-4 py-3.5 align-middle">
+            <span class="text-[10px] px-2.5 py-0.5 rounded-full font-extrabold uppercase tracking-wider inline-block whitespace-nowrap animate__animated animate__fadeIn"
+                  [ngClass]="getStatusBadgeClass(app)">
+              {{ getStatusLabel(app) }}
+            </span>
+          </td>
+
+          <!-- Ações Column -->
+          <td class="px-4 py-3.5 align-middle text-center">
+            <div class="flex items-center justify-center gap-1.5 flex-wrap">
+              <!-- Detalhes -->
+              <button 
+                type="button" 
+                class="btn btn-outline-primary py-1 px-2.5 text-xs font-bold rounded-lg transition-all"
+                (click)="openDetails(app)"
+              >
+                Detalhes
+              </button>
+
+              <!-- Reagendar -->
+              <button 
+                *ngIf="app.status === 'AGENDADO' || app.status === 'AGUARDANDO_RESULTADOS' || ((app.status === 'CONCLUIDO' || app.status === 'REALIZADO') && !app.resultUrl)"
+                type="button" 
+                class="btn btn-outline-info py-1 px-2.5 text-xs font-bold rounded-lg transition-all"
+                (click)="reschedule(app)"
+              >
+                Reagendar
+              </button>
+
+              <!-- Cancelar -->
+              <button 
+                *ngIf="app.status === 'AGENDADO' || app.status === 'AGUARDANDO_RESULTADOS' || ((app.status === 'CONCLUIDO' || app.status === 'REALIZADO') && !app.resultUrl)"
+                type="button" 
+                class="btn btn-outline-danger py-1 px-2.5 text-xs font-bold rounded-lg transition-all hover:bg-danger hover:text-white"
+                (click)="confirmCancel(app)"
+              >
+                Cancelar
+              </button>
+
+              <!-- Visualizar Laudo -->
+              <button 
+                *ngIf="app.resultUrl"
+                type="button" 
+                class="btn btn-success py-1 px-3 text-xs font-bold rounded-lg flex items-center justify-center gap-1 shadow-md shadow-success/10 transition-all hover:-translate-y-0.5"
+                (click)="downloadResult(app.resultUrl)"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+                Laudo
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredAppointments.length === 0"
+    class="text-center py-20 bg-gray-50 dark:bg-[#121e32] rounded-2xl border border-dashed border-gray-200 dark:border-[#1b2e4b] animate__animated animate__fadeIn">
+    <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+      <line x1="16" y1="2" x2="16" y2="6"></line>
+      <line x1="8" y1="2" x2="8" y2="6"></line>
+      <line x1="3" y1="10" x2="21" y2="10"></line>
+    </svg>
+    <p class="text-gray-500 dark:text-gray-400 text-lg font-bold">Nenhum agendamento encontrado</p>
+    <p class="text-gray-400 text-xs mt-1">Você não possui exames agendados nesta categoria ou filtro.</p>
+    <button 
+      type="button"
+      class="btn btn-primary mt-6 px-6 py-2.5 text-xs font-bold rounded-xl shadow-md shadow-primary/20 hover:-translate-y-0.5 transition-transform"
+      (click)="router.navigate(['/schedule'])"
+    >
+      Agendar Novo Exame
+    </button>
+  </div>
+</div>
+
+<!-- Modal de Preparo do Exame -->
+<ngx-custom-modal *ngIf="isBrowser" #preparoModal>
+  <ng-template #modalHeader>
+    <div class="flex items-center gap-3">
+      <span class="w-1 h-5 bg-primary rounded-full"></span>
+      <h3 class="text-base font-extrabold text-gray-800 dark:text-white-light leading-none">
+        Preparo para {{ selectedExamForPreparo?.name }}
+      </h3>
+    </div>
+  </ng-template>
+
+  <ng-template #modalBody>
+    <div class="space-y-4 pt-2">
+      <div class="bg-primary/5 rounded-2xl p-5 border border-primary/10 flex gap-4">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+        </div>
+        <div class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line font-medium flex-1">
+          {{ selectedExamForPreparo?.preparationInstructions || 'Nenhuma instrução especial de preparação é necessária para este exame.' }}
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button type="button" (click)="closePreparoModal()"
+      class="btn btn-primary px-6 h-10 font-bold text-xs rounded-xl transition-transform hover:-translate-y-0.5 shadow-md shadow-primary/15">
+      Entendi
+    </button>
+  </ng-template>
+</ngx-custom-modal>
+
+<!-- Modal de Detalhes do Agendamento -->
+<ngx-custom-modal *ngIf="isBrowser" #detailsModal>
+  <ng-template #modalHeader>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+      </div>
+      <div>
+        <span class="text-xs font-bold text-primary uppercase tracking-wider">Protocolo #{{ selectedAppointmentForDetails?.id }}</span>
+        <h3 class="text-base font-extrabold text-gray-800 dark:text-white-light leading-none mt-1">
+          Detalhes do Agendamento
+        </h3>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modalBody>
+    <div class="space-y-5 pt-2" *ngIf="selectedAppointmentForDetails">
+      <!-- Grid de Informações Básicas -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Paciente -->
+        <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+          <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">Paciente</span>
+          <div class="text-sm font-extrabold text-gray-800 dark:text-white-light">
+            {{ selectedAppointmentForDetails.patientName }}
+          </div>
+        </div>
+
+        <!-- Exame Solicitado -->
+        <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+          <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">Exame</span>
+          <div class="text-sm font-extrabold text-primary">
+            {{ selectedAppointmentForDetails.testName }}
+          </div>
+        </div>
+
+        <!-- Data e Hora Agendada -->
+        <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+          <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1.5">Data e Hora Agendada</span>
+          <div class="flex items-center gap-2 text-sm font-extrabold text-gray-800 dark:text-white-light">
+            <svg class="w-4.5 h-4.5 text-primary shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>{{ formatDate(selectedAppointmentForDetails.scheduledFor) }}</span>
+          </div>
+        </div>
+
+        <!-- Unidade de Atendimento -->
+        <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+          <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1.5">Unidade de Atendimento</span>
+          <div class="flex items-center gap-2 text-sm font-extrabold text-gray-800 dark:text-white-light">
+            <svg class="w-4.5 h-4.5 text-primary shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            <span>{{ selectedAppointmentForDetails.branchName }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Endereço Completo -->
+      <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+        <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">Endereço da Unidade</span>
+        <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+          {{ formatAddress(selectedAppointmentForDetails.branchAddress) }}
+        </div>
+      </div>
+
+      <!-- Status e Data de Solicitação -->
+      <div class="flex items-center justify-between flex-wrap gap-4 p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+        <div>
+          <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1.5">Status do Agendamento</span>
+          <span class="text-[11px] px-3 py-1 rounded-full font-extrabold uppercase tracking-wider inline-block font-sans font-bold"
+                [ngClass]="getStatusBadgeClass(selectedAppointmentForDetails)">
+            {{ getStatusLabel(selectedAppointmentForDetails) }}
+          </span>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">Solicitado em</span>
+          <span class="text-xs text-gray-700 dark:text-gray-300 font-extrabold block mt-1">
+            {{ formatDate(selectedAppointmentForDetails.scheduledAt) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Instruções de Preparo (Exame) -->
+      <div>
+        <h4 class="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Instruções de Preparo (Exame)</h4>
+        <div class="bg-primary/5 rounded-2xl p-4 border border-primary/10 flex gap-3">
+          <div class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+          </div>
+          <div class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line font-medium flex-1">
+            {{ selectedAppointmentForDetails.preparationInstructions || 'Nenhuma instrução especial de preparação é necessária para este exame.' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Laudo de Resultados -->
+      <div *ngIf="selectedAppointmentForDetails.resultUrl">
+        <h4 class="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Resultado / Laudo</h4>
+        <div class="flex items-center justify-between p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-100/30 dark:border-emerald-900/10">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+              </svg>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 block">Laudo Disponível</span>
+              <span class="text-[10px] text-gray-400">Clique no botão para baixar ou visualizar o PDF.</span>
+            </div>
+          </div>
+          <button 
+            type="button" 
+            class="btn btn-success py-2 px-4 text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md shadow-success/15 hover:-translate-y-0.5 transition-transform"
+            (click)="downloadResult(selectedAppointmentForDetails.resultUrl)"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Visualizar
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <div class="flex items-center gap-2 justify-end w-full" *ngIf="selectedAppointmentForDetails">
+      <!-- Cancelar (Se aplicável) -->
+      <button 
+        *ngIf="selectedAppointmentForDetails.status === 'AGENDADO' || selectedAppointmentForDetails.status === 'AGUARDANDO_RESULTADOS' || ((selectedAppointmentForDetails.status === 'CONCLUIDO' || selectedAppointmentForDetails.status === 'REALIZADO') && !selectedAppointmentForDetails.resultUrl)"
+        type="button" 
+        class="btn btn-outline-danger px-4 h-10 font-bold text-xs rounded-xl transition-transform hover:-translate-y-0.5"
+        (click)="confirmCancel(selectedAppointmentForDetails); closeDetailsModal()"
+      >
+        Cancelar Agendamento
+      </button>
+
+      <!-- Reagendar (Se aplicável) -->
+      <button 
+        *ngIf="selectedAppointmentForDetails.status === 'AGENDADO' || selectedAppointmentForDetails.status === 'AGUARDANDO_RESULTADOS' || ((selectedAppointmentForDetails.status === 'CONCLUIDO' || selectedAppointmentForDetails.status === 'REALIZADO') && !selectedAppointmentForDetails.resultUrl)"
+        type="button" 
+        class="btn btn-outline-info px-4 h-10 font-bold text-xs rounded-xl transition-transform hover:-translate-y-0.5"
+        (click)="reschedule(selectedAppointmentForDetails); closeDetailsModal()"
+      >
+        Reagendar
+      </button>
+
+      <!-- Fechar -->
+      <button type="button" (click)="closeDetailsModal()"
+        class="btn btn-primary px-6 h-10 font-bold text-xs rounded-xl transition-transform hover:-translate-y-0.5 shadow-md shadow-primary/15">
+        Fechar
+      </button>
+    </div>
+  </ng-template>
+</ngx-custom-modal>

@@ -1,0 +1,26 @@
+/* Estilos específicos do header */
+.rotate-180 {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Animação suave para o dropdown */
+.dropdown-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.dropdown-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* Hover effects para os itens do menu */
+.menu-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}

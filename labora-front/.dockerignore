@@ -1,0 +1,17 @@
+node_modules
+dist
+.angular
+.git
+.vscode
+.env
+.env.example
+.editorconfig
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+npm-debug.log
+yarn-error.log
+coverage
+*.log
+.DS_Store

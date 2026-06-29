@@ -1,0 +1,58 @@
+<div [ngClass]="{ 'dark text-white-dark': store.semidark }">
+    <nav class="sidebar fixed bottom-0 top-0 z-[9999] h-full min-h-screen w-[260px] shadow-[5px_0_30px_-10px_rgba(81,50,125,0.10)] transition-all duration-300"
+         [ngClass]="{ 'translate-x-0': store.sidebar, '-translate-x-full lg:translate-x-0': !store.sidebar }">
+        <div class="h-full bg-white dark:bg-[#0e1726] border-r border-gray-100/80 dark:border-white/[0.04]">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100/60 dark:border-white/[0.04]">
+                <a routerLink="/" class="main-logo flex shrink-0 items-center">
+                    <img class="ml-[5px] flex-none" src="{{logo}}" alt="" style="width: 140px" />
+                </a>
+                <a
+                    href="javascript:;"
+                    class="collapse-icon flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-all duration-200 hover:bg-primary/10 hover:text-primary dark:text-gray-500 dark:hover:bg-white/[0.06] rtl:rotate-180"
+                    (click)="storeData.dispatch({ type: 'toggleSidebar'})"
+                >
+                    <icon-carets-down class="m-auto rotate-45"></icon-carets-down>
+                </a>
+            </div>
+            <div class="relative !h-[calc(100vh-80px)] overflow-y-auto">
+                <ul class="relative space-y-1 mt-2 p-3 font-semibold">
+                    <li class="nav-item" *ngFor="let item of menuItems">
+                        <div *ngIf="!item.subItems || item.subItems.length === 0">
+                            <a routerLink="{{ item.link }}" class="group" routerLinkActive="active" (click)="toggleMobileMenu()">
+                                <div class="flex items-center">
+                                    <div *ngIf="getIconComponent(item.icon)" class="shrink-0 group-hover:!text-primary pr-4 transition-colors duration-200">
+                                        <ng-container [ngComponentOutlet]="getIconComponent(item.icon)"></ng-container>
+                                    </div>
+
+                                    <span class="text-gray-700 dark:text-[#506690] dark:group-hover:text-white-dark text-sm">
+                                        {{ item.label }}
+                                    </span>
+                                </div>
+                            </a>
+                        </div>
+                        <ng-container *ngIf="item.subItems && item.subItems.length > 0">
+                            <h2 class="mb-2 mt-4 px-3 py-1.5 flex items-center text-[10px] font-extrabold uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500">
+                                <span>{{ (item.label) || '&nbsp;' }}</span>
+                            </h2>
+                            <ul class="space-y-1">
+                                <li class="nav-item" *ngFor="let subItem of item.subItems">
+                                    <a routerLink="{{ subItem.link }}" class="group" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="toggleMobileMenu()">
+                                        <div class="flex items-center">
+                                            <div *ngIf="getIconComponent(subItem.icon)" class="shrink-0 group-hover:!text-primary pr-3 transition-colors duration-200">
+                                                <ng-container [ngComponentOutlet]="getIconComponent(subItem.icon)"></ng-container>
+                                            </div>
+
+                                            <span class="text-gray-700 dark:text-[#506690] dark:group-hover:text-white-dark text-sm">
+                                                {{ subItem.label }}
+                                            </span>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </ng-container>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>

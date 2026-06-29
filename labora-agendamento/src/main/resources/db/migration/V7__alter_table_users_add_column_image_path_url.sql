@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN image_path_url VARCHAR(255) NULL;

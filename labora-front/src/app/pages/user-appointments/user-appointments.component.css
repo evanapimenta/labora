@@ -1,0 +1,45 @@
+/* Custom CSS styles for user appointments dashboard */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Table styling overrides to make it feel premium */
+.table-responsive {
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+table th {
+  padding: 14px 18px !important;
+  font-weight: 700;
+}
+
+table td {
+  padding: 16px 18px !important;
+  transition: background-color 0.15s ease;
+}
+
+/* Row hover transitions */
+table tr:hover td {
+  background-color: rgba(67, 97, 238, 0.03) !important;
+}
+
+.dark table tr:hover td {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Button size adjustments inside table to ensure uniform width */
+table td .btn {
+  width: 96px;
+  justify-content: center;
+  white-space: nowrap;
+}
+

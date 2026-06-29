@@ -1,0 +1,90 @@
+<configuration>
+
+    <appender name="LOGIN_AUDIT_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/login-audit.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="LAB_AUDIT_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/lab-audit.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="REGISTRATION_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/registration.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="BRANCH_AUDIT_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/branch-audit.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ROLE_AUDIT_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/role-audit.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="TEST_AUDIT_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/test-audit.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <logger name="com.fatec.labify.config.interceptor" level="INFO" additivity="false">
+        <appender-ref ref="LOGIN_AUDIT_FILE" />
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
+    <logger name="com.fatec.labify.config.interceptor.LaboratoryAuditInterceptor" level="INFO" additivity="false">
+        <appender-ref ref="LAB_AUDIT_FILE" />
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
+    <logger name="com.fatec.labify.config.interceptor.BranchAuditInterceptor" level="INFO" additivity="false">
+        <appender-ref ref="BRANCH_AUDIT_FILE" />
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
+    <logger name="UserRegistrationAudit" level="INFO" additivity="false">
+        <appender-ref ref="REGISTRATION_FILE"/>
+    </logger>
+
+    <logger name="com.fatec.labify.config.interceptor.TestAuditInterceptor" level="INFO" additivity="false">
+        <appender-ref ref="TEST_AUDIT_FILE" />
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
+    <logger name="com.fatec.labify.config.interceptor.RoleAuditInterceptor" level="INFO" additivity="false">
+        <appender-ref ref="ROLE_AUDIT_FILE" />
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
+</configuration>

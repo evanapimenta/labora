@@ -1,0 +1,38 @@
+@import 'tippy.js/dist/tippy.css';
+@import 'highlight.js/styles/monokai-sublime.css';
+/* @import 'swiper/swiper-bundle.min.css'; */
+@import '../../../node_modules/swiper/swiper-bundle.min.css';
+@import 'ngx-lightbox/lightbox.css';
+@import '@ng-select/ng-select/themes/default.theme.css';
+@import 'quill/dist/quill.snow.css';
+@import 'file-upload-with-preview/dist/style.css';
+@import 'flatpickr/dist/flatpickr.min.css'; 
+@import 'nouislider/dist/nouislider.min.css';
+@import 'tailwind.css';
+
+/* Swiper Navigation and Pagination styles */
+swiper-container {
+  --swiper-navigation-color: #ffffff !important;
+  --swiper-pagination-color: #ffffff !important;
+  --swiper-pagination-bullet-inactive-color: #ffffff !important;
+  --swiper-pagination-bullet-inactive-opacity: 0.45 !important;
+  --swiper-navigation-sides-offset: 24px !important;
+  --swiper-navigation-size: 22px !important;
+}
+
+/* Dark mode adjustments for home carousel banners */
+.dark .bg-\[\#4C2A75\] {
+  background-color: #24143a !important; /* Harmonious deep dark purple */
+}
+.dark .bg-\[\#EFBD22\] {
+  background-color: #5d480e !important; /* Harmonious dark gold/amber */
+}
+.dark .bg-\[\#E75169\] {
+  background-color: #641c2a !important; /* Harmonious dark rose/ruby */
+}
+
+/* Image adjustments in dark mode for better visual integration */
+.dark swiper-slide img {
+  filter: brightness(0.82) contrast(1.05) saturate(0.9) !important;
+  opacity: 0.9 !important;
+}

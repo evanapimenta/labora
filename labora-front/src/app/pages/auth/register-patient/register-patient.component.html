@@ -1,0 +1,497 @@
+<div>
+    <!-- Background Gradient -->
+    <div class="absolute inset-0 min-h-screen">
+        <img src="/assets/images/auth/bg-gradient.png" alt="background" class="h-full w-full object-cover fixed" />
+    </div>
+
+    <div class="relative flex min-h-screen items-center justify-center bg-cover bg-center bg-no-repeat px-4 py-8 dark:bg-[#060818] sm:px-16 z-10 animate__animated animate__fadeIn">
+        <!-- Theme Toggle (top-right) -->
+        <div class="absolute top-5 right-5 z-20">
+            <app-theme-toggle variant="glass"></app-theme-toggle>
+        </div>
+
+        <!-- Floating Objects -->
+        <img src="/assets/images/auth/coming-soon-object1.png" alt="image" class="absolute left-0 top-1/2 h-full max-h-[893px] -translate-y-1/2 opacity-95 pointer-events-none" />
+        <img src="/assets/images/auth/coming-soon-object2.png" alt="image" class="absolute left-24 top-0 h-40 md:left-[30%] pointer-events-none" />
+        <img src="/assets/images/auth/coming-soon-object2.png" alt="image" class="absolute right-24 bottom-0 h-40 md:right-[30%] rotate-180 pointer-events-none" />
+        <img src="/assets/images/auth/coming-soon-object3.png" alt="image" class="absolute right-0 top-0 h-[300px] pointer-events-none" />
+
+        <!-- Split Form Card -->
+        <div class="relative flex w-full max-w-[1200px] flex-col justify-between overflow-hidden rounded-2xl bg-white/70 backdrop-blur-2xl dark:bg-black/50 shadow-2xl shadow-darkPurple/20 ring-1 ring-white/40 dark:ring-white/10 lg:min-h-[650px] lg:flex-row lg:gap-10 xl:gap-0 z-10">
+            
+            <!-- Left Side Cover (Rectangular) -->
+            <div class="relative hidden w-full items-center justify-center p-5 lg:inline-flex lg:max-w-[500px] xl:-ms-20 shrink-0 z-10">
+                <!-- Brand section gradient overlay (SKEWED) -->
+                <div class="absolute inset-y-0 -left-64 right-0 bg-gradient-to-br from-primary via-primary to-darkPurple opacity-95 xl:skew-x-[12deg] origin-bottom-right z-0"></div>
+                <div class="absolute inset-y-0 w-8 from-primary/10 via-transparent to-transparent ltr:-right-10 ltr:bg-gradient-to-r rtl:-left-10 rtl:bg-gradient-to-l xl:w-16 ltr:xl:-right-20 rtl:xl:-left-20 xl:skew-x-[12deg] origin-bottom-right z-0"></div>
+                
+                <!-- Content (UNSKEWED & CENTERED) -->
+                <div class="relative flex flex-col items-center justify-center text-center w-full mx-auto px-6 xl:pl-16 z-10">
+                    <a routerLink="/" class="block w-40 lg:w-56 mx-auto">
+                        <img src="/assets/images/logo.png" alt="Logo" class="w-full filter brightness-0 invert drop-shadow-lg mx-auto" />
+                    </a>
+                    <div class="mt-8 hidden w-full max-w-[280px] lg:block drop-shadow-lg mx-auto">
+                        <img src="/assets/Adventure_Illustrations/Laboratory/Laboratory.svg" alt="Laboratory" class="w-full mx-auto" />
+                    </div>
+                    <h2 class="text-white text-2xl font-black mt-6 tracking-wider uppercase drop-shadow-md text-center">Labify</h2>
+                    <p class="text-white/80 text-xs mt-2 max-w-xs drop-shadow-sm px-4 text-center">Complete o seu perfil de paciente de forma rápida e segura para começar a agendar e acompanhar seus exames.</p>
+                </div>
+            </div>
+
+            <!-- Right Side Content / Forms -->
+            <div class="relative flex-1 flex flex-col justify-center px-4 pb-12 pt-10 sm:px-10 lg:px-16 xl:px-20 overflow-y-auto">
+                
+                <!-- Estado 1: Verificando Link de Ativação -->
+                <div *ngIf="verifying" class="w-full text-center py-16">
+                    <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-white">Validando credenciais...</h3>
+                    <p class="text-xs text-white-dark mt-2">Aguarde um momento enquanto autenticamos sua sessão.</p>
+                </div>
+
+                <!-- Estado 2: Erro de Verificação ou Cadastro -->
+                <div *ngIf="errorMsg && !verified" class="w-full text-center py-12">
+                    <div class="w-16 h-16 bg-danger/10 text-danger rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-danger">Falha na ativação da conta</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 max-w-md mx-auto">{{ errorMsg }}</p>
+                    <div class="mt-8 flex gap-4 justify-center">
+                        <a routerLink="/sign-up" class="btn btn-outline-primary text-xs uppercase py-2.5 px-6 rounded-xl border-primary text-primary hover:bg-primary hover:text-white transition duration-200">Cadastrar Conta</a>
+                        <a routerLink="/sign-in" class="btn btn-primary text-xs uppercase py-2.5 px-6 rounded-xl bg-primary text-white border-0 shadow-lg shadow-primary/20 hover:shadow-primary/45 transition duration-200">Acessar Login</a>
+                    </div>
+                </div>
+
+                <!-- Estado 3: Conta Validada -> Formulário de Informações do Paciente -->
+                <div *ngIf="verified" class="animate__animated animate__fadeIn">
+                    
+                    <!-- Title & Header -->
+                    <div class="mb-6">
+                        <h1 class="text-2xl font-extrabold uppercase !leading-snug bg-mainGradient bg-clip-text text-transparent md:text-3xl">Completar Cadastro</h1>
+                        <p class="text-xs font-bold text-white-dark mt-1">Insira seus dados adicionais para ativar o seu acesso de paciente.</p>
+                    </div>
+
+                    <!-- Stepper Progress Bar -->
+                    <div class="mb-8 mt-4">
+                        <div class="relative w-full max-w-md mx-auto">
+                            <!-- Background line -->
+                            <div class="absolute left-[48px] right-[48px] top-[18px] h-0.5 bg-gray-200 dark:bg-gray-800 z-0">
+                                <!-- Active line -->
+                                <div class="h-full bg-mainGradient transition-all duration-300" [style.width.%]="(currentStep - 1) * 50"></div>
+                            </div>
+                            
+                            <!-- Step Indicators and Labels -->
+                            <div class="relative flex items-center justify-between z-10">
+                                <!-- Step 1 -->
+                                <div class="flex flex-col items-center w-24 cursor-pointer" (click)="currentStep = 1">
+                                    <div class="flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300 font-bold text-xs"
+                                         [ngClass]="{
+                                             'bg-mainGradient text-white': currentStep >= 1,
+                                             'bg-white dark:bg-[#0e1726] border-2 border-gray-300 dark:border-gray-700 text-gray-500': currentStep < 1
+                                         }">
+                                        <span *ngIf="currentStep <= 1">1</span>
+                                        <svg *ngIf="currentStep > 1" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <span class="mt-2 text-[9px] font-extrabold uppercase tracking-wider transition-colors duration-300 text-center"
+                                          [ngClass]="{
+                                              'text-primary dark:text-white-light': currentStep >= 1,
+                                              'text-gray-400 dark:text-gray-600': currentStep < 1
+                                          }">
+                                        Pessoal
+                                    </span>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div class="flex flex-col items-center w-24 cursor-pointer" (click)="currentStep > 1 ? currentStep = 2 : null">
+                                    <div class="flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300 font-bold text-xs"
+                                         [ngClass]="{
+                                             'bg-mainGradient text-white': currentStep >= 2,
+                                             'bg-white dark:bg-[#0e1726] border-2 border-gray-300 dark:border-gray-700 text-gray-500': currentStep < 2
+                                         }">
+                                        <span *ngIf="currentStep <= 2">2</span>
+                                        <svg *ngIf="currentStep > 2" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <span class="mt-2 text-[9px] font-extrabold uppercase tracking-wider transition-colors duration-300 text-center"
+                                          [ngClass]="{
+                                              'text-primary dark:text-white-light': currentStep >= 2,
+                                              'text-gray-400 dark:text-gray-600': currentStep < 2
+                                          }">
+                                        Emergência
+                                    </span>
+                                </div>
+
+                                <!-- Step 3 -->
+                                <div class="flex flex-col items-center w-24 cursor-pointer" (click)="currentStep > 2 ? currentStep = 3 : null">
+                                    <div class="flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300 font-bold text-xs"
+                                         [ngClass]="{
+                                             'bg-mainGradient text-white': currentStep >= 3,
+                                             'bg-white dark:bg-[#0e1726] border-2 border-gray-300 dark:border-gray-700 text-gray-500': currentStep < 3
+                                         }">
+                                        <span>3</span>
+                                    </div>
+                                    <span class="mt-2 text-[9px] font-extrabold uppercase tracking-wider transition-colors duration-300 text-center"
+                                          [ngClass]="{
+                                              'text-primary dark:text-white-light': currentStep >= 3,
+                                              'text-gray-400 dark:text-gray-600': currentStep < 3
+                                          }">
+                                        Endereço
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulário com Validação -->
+                    <div *ngIf="errorMsg" class="alert alert-danger mb-6 py-3 px-4 text-xs font-bold text-danger bg-danger/10 border-l-4 border-danger rounded-r animate__animated animate__shakeX">
+                        {{ errorMsg }}
+                    </div>
+
+                    <form [formGroup]="form" (submit)="onSubmit()" class="space-y-6 text-gray-700 dark:text-white">
+                        
+                        <!-- Passo 1: Informações Pessoais -->
+                        <div *ngIf="currentStep === 1" class="space-y-5 animate__animated animate__fadeIn">
+                            <div class="flex items-center gap-3 mb-2 pb-1.5 border-b border-gray-100 dark:border-gray-800">
+                                <div class="w-1 h-5 bg-primary rounded-full"></div>
+                                <h4 class="text-xs font-black text-gray-800 dark:text-white-light uppercase tracking-widest">
+                                    Informações Pessoais e de Saúde
+                                </h4>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="group">
+                                    <label for="cpf" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">CPF</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.378 0 2.472.507 2.472 1.432a.5.5 0 01-.472.568H6a.5.5 0 01-.472-.568c0-.925 1.094-1.432 2.472-1.432z" />
+                                            </svg>
+                                        </div>
+                                        <input formControlName="cpf" id="cpf" type="text" placeholder="000.000.000-00" 
+                                               class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full"
+                                               [class.!border-danger]="form.get('cpf')?.touched && form.get('cpf')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('cpf')?.touched && form.get('cpf')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        <span *ngIf="form.get('cpf')?.errors?.['required']">O CPF é obrigatório.</span>
+                                        <span *ngIf="form.get('cpf')?.errors?.['invalidCpf']">CPF informado é inválido.</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="group">
+                                    <label for="birthDate" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Data de Nascimento</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                                            </svg>
+                                        </div>
+                                        <input formControlName="birthDate" id="birthDate" type="date" 
+                                               class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all w-full"
+                                               [class.!border-danger]="form.get('birthDate')?.touched && form.get('birthDate')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('birthDate')?.touched && form.get('birthDate')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        Data de nascimento é obrigatória.
+                                    </div>
+                                </div>
+ 
+                                <div class="group">
+                                    <label for="phoneNumber" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Telefone Celular</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.07-.97a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                            </svg>
+                                        </div>
+                                        <input formControlName="phoneNumber" id="phoneNumber" type="text" placeholder="Ex: 11999999999" 
+                                               class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full"
+                                               [class.!border-danger]="form.get('phoneNumber')?.touched && form.get('phoneNumber')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('phoneNumber')?.touched && form.get('phoneNumber')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        Celular inválido (somente DDD + número).
+                                    </div>
+                                </div>
+ 
+                                <div class="group">
+                                    <label for="gender" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Gênero Biológico</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <!-- Venus Symbol for Feminino -->
+                                            <svg *ngIf="form.get('gender')?.value !== 'MASCULINO'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="10" r="4" />
+                                                <path d="M12 14v7M9 18h6" />
+                                            </svg>
+                                            <!-- Mars Symbol for Masculino -->
+                                            <svg *ngIf="form.get('gender')?.value === 'MASCULINO'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <circle cx="10" cy="14" r="5" />
+                                                <path d="M19 5v6M19 5h-6M19 5L14 10" />
+                                            </svg>
+                                        </div>
+                                        <select formControlName="gender" id="gender" 
+                                                class="form-select h-11 ps-10 pr-10 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all w-full">
+                                            <option value="FEMININO">Feminino</option>
+                                            <option value="MASCULINO">Masculino</option>
+                                        </select>
+                                    </div>
+                                </div>
+ 
+                                 <div class="group">
+                                    <label for="weight" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Peso (Kg)</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                                            </svg>
+                                        </div>
+                                        <input
+                                            formControlName="weight"
+                                            type="text"
+                                            inputmode="numeric"
+                                            id="weight"
+                                            placeholder="Ex: 75,0"
+                                            (input)="onWeightInput($event)"
+                                            class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full"
+                                            [class.!border-danger]="form.get('weight')?.touched && form.get('weight')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('weight')?.touched && form.get('weight')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        Peso obrigatório
+                                    </div>
+                                </div>
+ 
+                                <div class="group">
+                                    <label for="height" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Altura (m)</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 13l-7 7-7-7m14-6l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                        <input
+                                            formControlName="height"
+                                            type="text"
+                                            inputmode="numeric"
+                                            id="height"
+                                            placeholder="Ex: 1,75"
+                                            (input)="onHeightInput($event)"
+                                            class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full"
+                                            [class.!border-danger]="form.get('height')?.touched && form.get('height')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('height')?.touched && form.get('height')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        Altura obrigatória.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Passo 2: Contatos de Emergência -->
+                        <div *ngIf="currentStep === 2" class="space-y-5 animate__animated animate__fadeIn">
+                            <div class="flex items-center gap-3 mb-2 pb-1.5 border-b border-gray-100 dark:border-gray-800">
+                                <div class="w-1 h-5 bg-primary rounded-full"></div>
+                                <h4 class="text-xs font-black text-gray-800 dark:text-white-light uppercase tracking-widest">
+                                    Contatos de Acompanhamento e Emergência
+                                </h4>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="group">
+                                    <label for="emergencyContactName" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Nome do Contato de Emergência</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                        </div>
+                                        <input formControlName="emergencyContactName" id="emergencyContactName" type="text" placeholder="Nome do responsável" 
+                                               class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full"
+                                               [class.!border-danger]="form.get('emergencyContactName')?.touched && form.get('emergencyContactName')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('emergencyContactName')?.touched && form.get('emergencyContactName')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        Nome de contato é obrigatório.
+                                    </div>
+                                </div>
+
+                                <div class="group">
+                                    <label for="emergencyContactNumber" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Telefone de Emergência</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.07-.97a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                            </svg>
+                                        </div>
+                                        <input formControlName="emergencyContactNumber" id="emergencyContactNumber" type="text" placeholder="Telefone do responsável" 
+                                               class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full"
+                                               [class.!border-danger]="form.get('emergencyContactNumber')?.touched && form.get('emergencyContactNumber')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('emergencyContactNumber')?.touched && form.get('emergencyContactNumber')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        Telefone de emergência é obrigatório.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Passo 3: Endereço Residencial -->
+                        <div *ngIf="currentStep === 3" formGroupName="addressDTO" class="space-y-5 animate__animated animate__fadeIn">
+                            <div class="flex items-center gap-3 mb-2 pb-1.5 border-b border-gray-100 dark:border-gray-800">
+                                <div class="w-1 h-5 bg-primary rounded-full"></div>
+                                <h4 class="text-xs font-black text-gray-800 dark:text-white-light uppercase tracking-widest">
+                                    Endereço Residencial
+                                </h4>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="group sm:col-span-1">
+                                    <label for="zipCode" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">CEP</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                        </div>
+                                        <input formControlName="zipCode" id="zipCode" type="text" placeholder="00000-000" 
+                                               class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full"
+                                               [class.!border-danger]="form.get('addressDTO.zipCode')?.touched && form.get('addressDTO.zipCode')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('addressDTO.zipCode')?.touched && form.get('addressDTO.zipCode')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        CEP inválido (somente números).
+                                    </div>
+                                </div>
+
+                                <div class="group sm:col-span-2">
+                                    <label for="street" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Logradouro (Rua/Avenida)</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                            </svg>
+                                        </div>
+                                        <input formControlName="street" id="street" type="text" placeholder="Nome do logradouro" 
+                                               class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full"
+                                               [class.!border-danger]="form.get('addressDTO.street')?.touched && form.get('addressDTO.street')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('addressDTO.street')?.touched && form.get('addressDTO.street')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        Nome do logradouro é obrigatório.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="group sm:col-span-1">
+                                    <label for="number" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Número</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                            </svg>
+                                        </div>
+                                        <input formControlName="number" id="number" type="text" placeholder="Nº" 
+                                               class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full"
+                                               [class.!border-danger]="form.get('addressDTO.number')?.touched && form.get('addressDTO.number')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('addressDTO.number')?.touched && form.get('addressDTO.number')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        Número é obrigatório.
+                                    </div>
+                                </div>
+
+                                <div class="group sm:col-span-2">
+                                    <label for="complement" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Complemento (Opcional)</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                            </svg>
+                                        </div>
+                                        <input formControlName="complement" id="complement" type="text" placeholder="Apto, Bloco, Casa..." 
+                                               class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="group">
+                                    <label for="neighborhood" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Bairro</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            </svg>
+                                        </div>
+                                        <input formControlName="neighborhood" id="neighborhood" type="text" placeholder="Nome do Bairro" 
+                                               class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full"
+                                               [class.!border-danger]="form.get('addressDTO.neighborhood')?.touched && form.get('addressDTO.neighborhood')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('addressDTO.neighborhood')?.touched && form.get('addressDTO.neighborhood')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        Bairro é obrigatório.
+                                    </div>
+                                </div>
+
+                                <div class="group">
+                                    <label for="city" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Cidade</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                                            </svg>
+                                        </div>
+                                        <input formControlName="city" id="city" type="text" placeholder="Nome da Cidade" 
+                                               class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full"
+                                               [class.!border-danger]="form.get('addressDTO.city')?.touched && form.get('addressDTO.city')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('addressDTO.city')?.touched && form.get('addressDTO.city')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        Cidade é obrigatória.
+                                    </div>
+                                </div>
+
+                                <div class="group">
+                                    <label for="state" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Estado (UF)</label>
+                                    <div class="relative">
+                                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                                            </svg>
+                                        </div>
+                                        <input formControlName="state" id="state" type="text" placeholder="Ex: SP, RJ..." 
+                                               class="form-input h-11 ps-10 pr-4 bg-gray-50/50 dark:bg-[#0e1726]/50 border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all placeholder:text-gray-400/80 w-full"
+                                               [class.!border-danger]="form.get('addressDTO.state')?.touched && form.get('addressDTO.state')?.invalid" />
+                                    </div>
+                                    <div *ngIf="form.get('addressDTO.state')?.touched && form.get('addressDTO.state')?.invalid" class="text-[10px] text-danger mt-1 font-semibold">
+                                        Estado é obrigatório.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ações / Navegação -->
+                        <div class="mt-8 pt-4 border-t border-gray-150/40 dark:border-gray-800/40 flex justify-between gap-4">
+                            <button type="button" *ngIf="currentStep > 1" (click)="prevStep()" 
+                                    class="btn btn-outline-secondary h-11 px-6 font-bold text-xs">
+                                Voltar
+                            </button>
+                            
+                            <!-- Filler to push Next/Submit to the right if Back is hidden -->
+                            <div *ngIf="currentStep === 1"></div>
+
+                            <button type="button" *ngIf="currentStep < 3" (click)="nextStep()" 
+                                    class="btn btn-primary h-11 px-6 font-bold text-xs shadow-md shadow-primary/20">
+                                Próximo Passo
+                            </button>
+
+                            <button type="submit" *ngIf="currentStep === 3" [disabled]="submitting" 
+                                    class="btn btn-primary h-11 px-8 font-bold text-xs shadow-md shadow-primary/20 flex-1 sm:flex-initial">
+                                <span *ngIf="submitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block me-2 align-middle"></span>
+                                Concluir Cadastro
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

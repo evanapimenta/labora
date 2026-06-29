@@ -1,0 +1,117 @@
+<div>
+    <div class="absolute inset-0">
+        <img src="/assets/images/auth/bg-gradient.png" alt="image" class="h-full w-full object-cover" />
+    </div>
+    <div
+        class="relative flex min-h-screen items-center justify-center bg-cover bg-center bg-no-repeat px-6 py-10 dark:bg-[#060818] sm:px-16">
+        <!-- Theme Toggle (top-right) -->
+        <div class="absolute top-5 right-5 z-20">
+            <app-theme-toggle variant="glass"></app-theme-toggle>
+        </div>
+
+        <img src="/assets/images/auth/coming-soon-object1.png" alt="image"
+            class="absolute left-0 top-1/2 h-full max-h-[893px] -translate-y-1/2 opacity-95" />
+        <img src="/assets/images/auth/coming-soon-object2.png" alt="image"
+            class="absolute left-24 top-0 h-40 md:left-[30%]" />
+        <img src="/assets/images/auth/coming-soon-object2.png" alt="image"
+            class="absolute right-24 bottom-0 h-40 md:right-[30%] rotate-180" />
+        <img src="/assets/images/auth/coming-soon-object3.png" alt="image" class="absolute right-0 top-0 h-[300px]" />
+        <div
+            class="relative flex w-full max-w-[1502px] flex-col justify-between overflow-hidden rounded-2xl bg-white/70 backdrop-blur-2xl dark:bg-black/50 shadow-2xl shadow-darkPurple/20 ring-1 ring-white/40 dark:ring-white/10 lg:min-h-[500px] lg:flex-row lg:gap-10 xl:gap-0">
+            <div
+                class="relative hidden w-full items-center justify-center bg-primary p-5 lg:inline-flex lg:max-w-[835px] xl:-ms-28 ltr:xl:skew-x-[14deg] rtl:xl:skew-x-[14deg]">
+                <!-- Subtle gradient overlay on brand section -->
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-primary via-primary to-darkPurple opacity-95 ltr:xl:skew-x-0 rtl:xl:skew-x-0">
+                </div>
+                <div
+                    class="absolute inset-y-0 w-8 from-primary/10 via-transparent to-transparent ltr:-right-10 ltr:bg-gradient-to-r rtl:-left-10 rtl:bg-gradient-to-l xl:w-16 ltr:xl:-right-20 rtl:xl:-left-20">
+                </div>
+                <div
+                    class="relative flex flex-col items-center justify-center ltr:xl:-skew-x-[14deg] rtl:xl:skew-x-[14deg]">
+                    <a routerLink="/" class="block w-48 lg:w-72">
+                        <img src="/assets/images/logo.png" alt="Logo"
+                            class="w-full filter brightness-0 invert drop-shadow-lg" />
+                    </a>
+                    <div class="mt-10 hidden w-full max-w-[430px] lg:block drop-shadow-lg">
+                        <img src="/assets/Adventure_Illustrations/Security_Animated/Security.svg" alt="Cover Image"
+                            class="w-full" />
+                    </div>
+                </div>
+            </div>
+            <div
+                class="relative flex w-full flex-col items-center justify-center gap-6 px-4 pb-16 pt-6 sm:px-6 lg:max-w-[667px]">
+                <div class="w-full max-w-[440px] lg:mt-16">
+                    <div class="my-10 lg:mt-0">
+                        <h1
+                            class="text-3xl font-extrabold uppercase !leading-snug bg-mainGradient bg-clip-text text-transparent md:text-4xl">
+                            Login</h1>
+                        <p class="text-base font-bold leading-normal text-white-dark mt-1">Informe seu email e senha
+                            para entrar</p>
+                    </div>
+                    <form class="space-y-5 dark:text-white my-10" [formGroup]="form" (submit)="login()">
+                        <div>
+                            <label for="Email">Email</label>
+                            <div class="relative text-white-dark">
+                                <input formControlName="email" id="Email" type="email" placeholder="Digite o Email"
+                                    class="form-input ps-11 placeholder:text-white-dark h-12" />
+                                <span class="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <icon-mail [fill]="false" />
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="Password">Senha</label>
+                            <div class="relative text-white-dark">
+                                <input formControlName="password" id="Password" type="password"
+                                    placeholder="Digite a Senha"
+                                    class="form-input ps-11 placeholder:text-white-dark h-12" />
+                                <span class="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <icon-lock-dots [fill]="false" />
+                                </span>
+                            </div>
+                        </div>
+                        <button type="submit"
+                            class="btn bg-mainGradient text-white !mt-6 w-full border-0 uppercase shadow-brand hover:shadow-[0_14px_30px_-10px_rgba(206,81,108,0.55)] tracking-wider h-12">
+                            Entrar
+                        </button>
+                    </form>
+
+                    <div
+                        class="relative my-7 text-center before:w-full before:h-[1px] before:absolute before:inset-0 before:m-auto before:bg-[#ebedf2] dark:before:bg-[#253b5c]">
+                        <span
+                            class="relative bg-white dark:bg-black px-2 font-bold text-white-dark rounded-full">ou</span>
+                    </div>
+
+                    <button type="button" (click)="loginWithGoogle()"
+                        class="w-full flex items-center justify-center gap-3 bg-white border border-[#dadce0] rounded h-10 px-3 hover:bg-[#f8f9fa] hover:shadow-sm transition-all duration-200">
+                        <svg viewBox="0 0 24 24" class="w-[18px] h-[18px]" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                fill="#4285F4" />
+                            <path
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                fill="#34A853" />
+                            <path
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                fill="#FBBC05" />
+                            <path
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                fill="#EA4335" />
+                        </svg>
+                        <span class="font-bold text-sm text-[#3c4043]" style="font-family: 'Roboto', sans-serif;">Entrar
+                            com o Google</span>
+                    </button>
+
+                    <div class="text-center dark:text-white mt-3">
+                        Não tem uma conta?
+                        <a routerLink="/sign-up"
+                            class="cursor-pointer font-bold text-primary hover:text-darkPink transition-colors duration-200">
+                            Cadastre-se
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

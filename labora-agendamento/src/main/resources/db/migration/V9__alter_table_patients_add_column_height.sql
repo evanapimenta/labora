@@ -1,0 +1,1 @@
+ALTER TABLE patients ADD COLUMN height DECIMAL(3, 2);

@@ -1,0 +1,357 @@
+<div class="animate__animated animate__fadeIn">
+
+  <div *ngIf="loading" class="panel bg-white dark:bg-[#191e3a] p-16 rounded-xl text-center border border-[#e0e6ed] dark:border-[#1b2e4b]">
+    <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+    <p class="text-xs text-gray-500">Carregando dados da conta...</p>
+  </div>
+
+  <div *ngIf="errorMsg" class="alert alert-danger mb-6">
+    <p class="text-xs font-semibold">{{ errorMsg }}</p>
+  </div>
+
+  <div *ngIf="!loading" class="flex flex-col lg:flex-row gap-6">
+
+    <div class="lg:w-64 flex flex-col gap-4">
+
+      <div class="panel border border-[#e0e6ed] dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] rounded-2xl p-6 flex flex-col items-center text-center gap-3">
+        <div class="relative">
+          <div class="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-primary to-[#c23b6a] flex items-center justify-center shadow-lg">
+            <img *ngIf="getProfileImageUrl() !== '/assets/images/profile.png'"
+                 [src]="getProfileImageUrl()" alt="Foto" class="w-full h-full object-cover" />
+            <span *ngIf="getProfileImageUrl() === '/assets/images/profile.png'"
+                  class="text-3xl font-black text-white">{{ getUserInitials() }}</span>
+          </div>
+          <div class="absolute bottom-0 right-0 w-4 h-4 bg-success rounded-full border-2 border-white dark:border-[#191e3a]"></div>
+        </div>
+        <div>
+          <h5 class="font-extrabold text-sm text-gray-800 dark:text-white-light">{{ user.firstName || '...' }}</h5>
+        </div>
+      </div>
+
+      <div class="panel border border-[#e0e6ed] dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] rounded-2xl p-4">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-3">Ações</p>
+        <button type="button" (click)="onChangePassword()"
+                class="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-primary/5 hover:text-primary transition-all duration-200">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Alterar Senha
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-1">
+      <div class="panel border border-[#e0e6ed] dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] rounded-2xl p-8 h-full">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-1 h-6 bg-primary rounded-full"></div>
+          <h6 class="font-bold text-base text-gray-800 dark:text-white-light">Dados Pessoais</h6>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+          <div class="group">
+            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Nome Completo</label>
+            <div class="relative">
+              <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <div class="h-11 pl-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] group-hover:border-primary/40 rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200 transition-colors">
+                {{ user.firstName || '—' }}
+              </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Data de Nascimento</label>
+            <div class="relative">
+              <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+              <div class="h-11 pl-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] group-hover:border-primary/40 rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200 transition-colors">
+                {{ user.dateOfBirth || '—' }}
+              </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">E-mail</label>
+            <div class="relative">
+              <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </div>
+              <div class="h-11 pl-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] group-hover:border-primary/40 rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200 transition-colors">
+                {{ user.email || '—' }}
+              </div>
+            </div>
+          </div>
+
+          <div class="group">
+            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Telefone</label>
+            <div class="relative">
+              <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.07-.97a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+              </div>
+              <div class="h-11 pl-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] group-hover:border-primary/40 rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200 transition-colors">
+                {{ user.phoneNumber || '—' }}
+              </div>
+            </div>
+        </div>
+
+        <!-- Informações Adicionais do Paciente -->
+        <div *ngIf="patient" class="mt-8 border-t border-gray-100 dark:border-gray-800 pt-8">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-1 h-6 bg-primary rounded-full"></div>
+            <h6 class="font-bold text-base text-gray-800 dark:text-white-light">Dados de Saúde e Convênio</h6>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div class="group">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">CPF</label>
+              <div class="relative">
+                <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.378 0 2.472.507 2.472 1.432a.5.5 0 01-.472.568H6a.5.5 0 01-.472-.568c0-.925 1.094-1.432 2.472-1.432z" />
+                  </svg>
+                </div>
+                <div class="h-11 pl-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  {{ patient.cpf || '—' }}
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Gênero Biológico</label>
+              <div class="relative">
+                <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="10" r="4" />
+                    <path d="M12 14v7M9 18h6" />
+                  </svg>
+                </div>
+                <div class="h-11 pl-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  {{ formatGender(patient.gender) }}
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Peso</label>
+              <div class="relative">
+                <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                  </svg>
+                </div>
+                <div class="h-11 pl-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  {{ patient.weight ? patient.weight + ' Kg' : '—' }}
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Altura</label>
+              <div class="relative">
+                <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 13l-7 7-7-7m14-6l-7 7-7-7" />
+                  </svg>
+                </div>
+                <div class="h-11 pl-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  {{ patient.height ? patient.height + ' m' : '—' }}
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Convênio Médico</label>
+              <div class="relative">
+                <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div class="h-11 pl-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  {{ patient.insured ? patient.insuranceName : 'Não possui' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contato de Emergência -->
+        <div *ngIf="patient" class="mt-8 border-t border-gray-100 dark:border-gray-800 pt-8">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-1 h-6 bg-primary rounded-full"></div>
+            <h6 class="font-bold text-base text-gray-800 dark:text-white-light">Contato de Emergência</h6>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div class="group">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Nome do Contato</label>
+              <div class="relative">
+                <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <div class="h-11 pl-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  {{ patient.emergencyContactName || '—' }}
+                </div>
+              </div>
+            </div>
+
+            <div class="group">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Telefone do Contato</label>
+              <div class="relative">
+                <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </div>
+                <div class="h-11 pl-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  {{ patient.emergencyContactNumber || '—' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Endereço -->
+        <div *ngIf="patient && patient.address" class="mt-8 border-t border-gray-100 dark:border-gray-800 pt-8">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-1 h-6 bg-primary rounded-full"></div>
+            <h6 class="font-bold text-base text-gray-800 dark:text-white-light">Endereço Residencial</h6>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div class="group">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">CEP</label>
+              <div class="h-11 px-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                {{ patient.address.zipCode || '—' }}
+              </div>
+            </div>
+
+            <div class="group sm:col-span-2">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Logradouro (Rua/Av.)</label>
+              <div class="h-11 px-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                {{ patient.address.street || '—' }}
+              </div>
+            </div>
+
+            <div class="group">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Número</label>
+              <div class="h-11 px-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                {{ patient.address.number || '—' }}
+              </div>
+            </div>
+
+            <div class="group sm:col-span-2">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Complemento</label>
+              <div class="h-11 px-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                {{ patient.address.complement || '—' }}
+              </div>
+            </div>
+
+            <div class="group">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Bairro</label>
+              <div class="h-11 px-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                {{ patient.address.neighborhood || '—' }}
+              </div>
+            </div>
+
+            <div class="group">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Cidade</label>
+              <div class="h-11 px-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                {{ patient.address.city || '—' }}
+              </div>
+            </div>
+
+            <div class="group">
+              <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">Estado</label>
+              <div class="h-11 px-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] rounded-lg flex items-center text-sm font-semibold text-gray-700 dark:text-gray-200">
+                {{ patient.address.state || '—' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<ngx-custom-modal *ngIf="isBrowser" #passwordModal customClass="small-modal animate animate-slide-in-down">
+  <ng-template #modalHeader>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <div>
+        <span class="text-xs font-bold text-primary uppercase tracking-wider">Segurança</span>
+        <h3 class="text-base font-extrabold text-gray-800 dark:text-white-light leading-none mt-1">Alterar Senha</h3>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template #modalBody>
+    <form (submit)="submitPasswordChange(); $event.preventDefault();" class="space-y-4 text-left">
+      <div class="group">
+        <label for="newPassword" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Nova Senha</label>
+        <div class="relative">
+          <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <input type="password" id="newPassword" [(ngModel)]="newPassword" name="newPassword" required 
+                 class="form-input h-11 ps-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 group-hover:border-primary/40 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 transition-colors placeholder:text-gray-400/80" 
+                 placeholder="Digite a nova senha" />
+        </div>
+      </div>
+      
+      <div class="group">
+        <label for="confirmPassword" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5 block">Confirmar Nova Senha</label>
+        <div class="relative">
+          <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <input type="password" id="confirmPassword" [(ngModel)]="confirmNewPassword" name="confirmNewPassword" required 
+                 class="form-input h-11 ps-10 pr-4 bg-gray-50 dark:bg-[#0e1726] border border-[#e0e6ed] dark:border-[#1b2e4b] focus:border-primary/60 dark:focus:border-primary/60 group-hover:border-primary/40 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 transition-colors placeholder:text-gray-400/80" 
+                 placeholder="Confirme a nova senha" />
+        </div>
+      </div>
+      
+      <div *ngIf="passwordError" class="text-[10px] text-danger mt-1 font-semibold">{{ passwordError }}</div>
+      <div *ngIf="passwordSuccess" class="text-[10px] text-success mt-1 font-semibold">Senha alterada com sucesso!</div>
+      
+      <div class="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+        <button type="button" class="btn btn-outline-dark text-xs hover:-translate-y-0.5 transition-transform" (click)="passwordModal.close()">Cancelar</button>
+        <button type="submit" class="btn btn-primary text-xs hover:-translate-y-0.5 transition-transform" [disabled]="passwordSaving">
+          <span *ngIf="passwordSaving" class="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin inline-block me-1 align-middle"></span>
+          Salvar
+        </button>
+      </div>
+    </form>
+  </ng-template>
+</ngx-custom-modal>

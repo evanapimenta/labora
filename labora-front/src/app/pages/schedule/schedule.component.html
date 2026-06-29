@@ -1,0 +1,563 @@
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h5 class="font-bold text-lg dark:text-white-light text-gray-800">Agendamento de Exames</h5>
+    <p class="text-xs text-gray-500 mt-0.5">Selecione o exame, a unidade e agende sua data.</p>
+  </div>
+</div>
+
+<div
+  class="panel border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] rounded-xl shadow-sm mb-6 px-6 py-4">
+  <div class="flex items-center flex-wrap gap-1">
+
+    <button type="button" (click)="resetStep(1)"
+      class="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-300"
+      [ngClass]="currentStep === 1 ? 'bg-primary text-white shadow-md shadow-primary/30' : (currentStep > 1 ? 'bg-primary/10 text-primary hover:bg-primary/20' : 'bg-gray-100 dark:bg-[#0e1726] text-gray-400 cursor-default')">
+      <span class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black"
+        [ngClass]="currentStep === 1 ? 'bg-white/30' : ''">1</span>
+      Exame
+    </button>
+
+    <svg class="w-3 h-3 text-gray-300 dark:text-gray-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2.5">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+
+    <button type="button" (click)="selectedExamObject ? resetStep(2) : null"
+      class="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-300"
+      [ngClass]="currentStep === 2 ? 'bg-primary text-white shadow-md shadow-primary/30' : (currentStep > 2 ? 'bg-primary/10 text-primary hover:bg-primary/20' : 'bg-gray-100 dark:bg-[#0e1726] text-gray-400 cursor-default')">
+      <span class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black"
+        [ngClass]="currentStep === 2 ? 'bg-white/30' : ''">2</span>
+      Laboratório
+    </button>
+
+    <svg class="w-3 h-3 text-gray-300 dark:text-gray-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2.5">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+
+    <button type="button" (click)="selectedBranchObject ? resetStep(3) : null"
+      class="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-300"
+      [ngClass]="currentStep === 3 ? 'bg-primary text-white shadow-md shadow-primary/30' : (currentStep > 3 ? 'bg-primary/10 text-primary hover:bg-primary/20' : 'bg-gray-100 dark:bg-[#0e1726] text-gray-400 cursor-default')">
+      <span class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black"
+        [ngClass]="currentStep === 3 ? 'bg-white/30' : ''">3</span>
+      Data e Hora
+    </button>
+
+    <svg class="w-3 h-3 text-gray-300 dark:text-gray-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2.5">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+
+    <button type="button" (click)="selectedDate && selectedTime ? resetStep(4) : null"
+      class="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-300"
+      [ngClass]="currentStep === 4 ? 'bg-primary text-white shadow-md shadow-primary/30' : 'bg-gray-100 dark:bg-[#0e1726] text-gray-400 cursor-default'">
+      <span class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black"
+        [ngClass]="currentStep === 4 ? 'bg-white/30' : ''">4</span>
+      Confirmação
+    </button>
+
+  </div>
+</div>
+
+
+
+<div *ngIf="currentStep === 1 && !bookingSuccess"
+  class="panel border-white-light dark:border-[#1b2e4b] relative overflow-hidden min-h-[60vh] flex flex-col bg-white dark:bg-[#191e3a] p-6 rounded-lg shadow-sm animate__animated animate__fadeIn">
+  <div class="flex-1">
+
+    <div class="mb-5">
+      <h5 class="font-bold text-lg dark:text-white-light text-gray-800">Agendamento</h5>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-end gap-4 mb-6">
+      <div class="flex-1 w-full relative">
+        <label class="text-xs text-gray-500 mb-1.5 block font-semibold">Exame</label>
+        <div class="relative group w-full">
+          <input
+            type="text"
+            class="w-full peer form-input pl-11 pr-4 h-11 rounded-xl bg-gray-50 border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-primary placeholder:text-gray-400 placeholder:font-medium dark:bg-[#121e32] dark:hover:bg-[#0e1726] dark:focus:bg-[#0e1726]"
+            placeholder="Qual exame procura?"
+            [(ngModel)]="examSearchQuery"
+            (input)="onSearchInputChange()"
+            (focus)="onInputFocus()"
+            (blur)="onInputBlur()"
+            (keydown)="onKeyDown($event)"
+          />
+          <div class="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400 peer-focus:text-primary transition-colors duration-200 pointer-events-none">
+            <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          
+          <!-- Autocomplete Dropdown -->
+          <div *ngIf="showSuggestions && suggestions.length > 0"
+               class="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-[#1b2e4b] border border-gray-100 dark:border-gray-800 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+            <button *ngFor="let suggestion of suggestions; let i = index"
+                    type="button"
+                    (mousedown)="selectSuggestion(suggestion)"
+                    [ngClass]="{'bg-primary/10 text-primary': i === activeSuggestionIndex}"
+                    class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-[#121e32] transition-colors border-b border-gray-50 dark:border-gray-800/40 last:border-b-0 flex items-center gap-2">
+              <svg class="w-4 h-4 opacity-60 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <span class="truncate font-semibold text-gray-700 dark:text-white-light">{{ suggestion.name }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button type="button"
+        class="btn btn-primary h-11 px-6 flex items-center gap-2 transition-colors duration-300 font-bold whitespace-nowrap"
+        (click)="onSearchClick()">
+        Buscar
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+    </div>
+
+    <div class="mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate__animated animate__fadeIn">
+        <app-exam-card *ngFor="let exam of pagedExams" [exam]="exam" [isSelected]="selectedExam === exam.name"
+          (select)="selectExam(exam)" (viewDetails)="openDetails(exam)">
+        </app-exam-card>
+      </div>
+
+      <div *ngIf="totalPages > 1" class="flex justify-center items-center gap-2 mt-8 animate__animated animate__fadeIn">
+        <button type="button" class="btn btn-sm rounded-lg p-2 transition-all duration-300"
+          [ngClass]="currentPage === 1 ? 'btn-outline-secondary opacity-50 cursor-not-allowed' : 'btn-outline-primary'"
+          [disabled]="currentPage === 1" (click)="prevPage()">
+          <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+
+        <button *ngFor="let page of pageNumbers" type="button"
+          class="btn btn-sm w-9 h-9 rounded-lg font-bold transition-all duration-300"
+          [ngClass]="currentPage === page ? 'btn-primary text-white' : 'btn-outline-primary hover:bg-primary hover:text-white'"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+
+        <button type="button" class="btn btn-sm rounded-lg p-2 transition-all duration-300"
+          [ngClass]="currentPage === totalPages ? 'btn-outline-secondary opacity-50 cursor-not-allowed' : 'btn-outline-primary'"
+          [disabled]="currentPage === totalPages" (click)="nextPage()">
+          <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <div *ngIf="filteredExams.length === 0"
+        class="text-center py-16 bg-gray-50 dark:bg-[#121e32] rounded-lg border border-dashed border-gray-300 dark:border-[#1b2e4b] animate__animated animate__fadeIn">
+        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <p class="text-gray-500 dark:text-gray-400 text-lg font-medium">Nenhum exame correspondente encontrado</p>
+        <p class="text-gray-400 text-sm mt-1">Tente digitar outros termos para encontrar exames semelhantes.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="currentStep === 2 && !bookingSuccess"
+  class="panel border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] p-6 rounded-lg animate__animated animate__fadeIn shadow-sm">
+  <div class="mb-6 flex justify-between items-center">
+    <h5 class="font-bold text-lg dark:text-white-light text-gray-800">Agendamento</h5>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 items-end animate__animated animate__fadeIn relative z-50">
+    <app-exam-card [exam]="selectedExamObject" [isSummaryMode]="true" (change)="resetStep(1)"
+      (viewDetails)="openDetails(selectedExamObject)">
+    </app-exam-card>
+
+    <div>
+      <label class="text-xs text-gray-500 mb-1.5 block font-semibold">Qual sua região?</label>
+      <div class="flex gap-4 relative">
+        <div class="flex-1 relative">
+          <div class="relative group w-full">
+            <input
+              type="text"
+              class="w-full peer form-input pl-11 pr-4 h-11 rounded-xl bg-gray-50 border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-primary placeholder:text-gray-400 placeholder:font-medium dark:bg-[#121e32] dark:hover:bg-[#0e1726] dark:focus:bg-[#0e1726]"
+              placeholder="Região, cidade ou unidade"
+              [(ngModel)]="regionSearchQuery"
+              (input)="onRegionInputChange()"
+              (focus)="onRegionInputFocus()"
+              (blur)="onRegionInputBlur()"
+              (keydown)="onRegionKeyDown($event)"
+            />
+            <div class="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400 peer-focus:text-primary transition-colors duration-200 pointer-events-none">
+              <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            
+            <!-- Autocomplete Region Dropdown -->
+            <div *ngIf="showRegionSuggestions && regionSuggestions.length > 0"
+                 class="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-[#1b2e4b] border border-gray-100 dark:border-gray-800 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+              <button *ngFor="let suggestion of regionSuggestions; let i = index"
+                      type="button"
+                      (mousedown)="selectRegionSuggestion(suggestion)"
+                      [ngClass]="{'bg-primary/10 text-primary': i === activeRegionSuggestionIndex}"
+                      class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-[#121e32] transition-colors border-b border-gray-50 dark:border-gray-800/40 last:border-b-0 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 truncate">
+                  <svg class="w-4 h-4 opacity-60 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  <span class="truncate font-semibold text-gray-700 dark:text-white-light">{{ suggestion.value }}</span>
+                </div>
+                <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full shrink-0"
+                      [ngClass]="{
+                        'bg-info/10 text-info': suggestion.type === 'city',
+                        'bg-success/10 text-success': suggestion.type === 'neighborhood',
+                        'bg-warning/10 text-warning': suggestion.type === 'name'
+                      }">
+                  {{ suggestion.type === 'city' ? 'Cidade' : (suggestion.type === 'neighborhood' ? 'Bairro' : 'Unidade') }}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary h-11 px-6 font-bold flex items-center gap-2"
+          (click)="onRegionSearchClick()">
+          Buscar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="flex justify-center py-20">
+    <div class="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin border-primary"></div>
+  </div>
+  <div *ngIf="!loading && pagedBranches.length > 0" class="mb-4">
+    <span class="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 animate__animated animate__fadeIn">
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+      Unidades mais próximas
+    </span>
+  </div>
+
+  <div *ngIf="!loading"
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 animate__animated animate__fadeIn">
+    <app-branch-card *ngFor="let branch of pagedBranches" [branch]="branch" [selectedExam]="selectedExamObject"
+      (select)="selectBranch(branch)">
+    </app-branch-card>
+  </div>
+
+  <div *ngIf="!loading && totalBranchPages > 1"
+    class="flex justify-center items-center gap-2 mt-8 animate__animated animate__fadeIn">
+    <button type="button" class="btn btn-sm rounded-lg p-2"
+      [ngClass]="currentBranchPage === 1 ? 'btn-outline-secondary opacity-50 cursor-not-allowed' : 'btn-outline-primary'"
+      [disabled]="currentBranchPage === 1" (click)="prevBranchPage()">
+      <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+
+    <button *ngFor="let page of branchPageNumbers" type="button" class="btn btn-sm w-9 h-9 rounded-lg font-bold"
+      [ngClass]="currentBranchPage === page ? 'btn-primary text-white' : 'btn-outline-primary hover:bg-primary hover:text-white'"
+      (click)="goToBranchPage(page)">
+      {{ page }}
+    </button>
+
+    <button type="button" class="btn btn-sm rounded-lg p-2"
+      [ngClass]="currentBranchPage === totalBranchPages ? 'btn-outline-secondary opacity-50 cursor-not-allowed' : 'btn-outline-primary'"
+      [disabled]="currentBranchPage === totalBranchPages" (click)="nextBranchPage()">
+      <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+  </div>
+
+  <div *ngIf="!loading && filteredBranches.length === 0"
+    class="text-center py-16 bg-gray-50 dark:bg-[#121e32] rounded-lg border border-dashed border-gray-300 dark:border-[#1b2e4b] animate__animated animate__fadeIn">
+    <p class="text-gray-500 dark:text-gray-400 text-base font-semibold">Nenhuma unidade disponível nesta região</p>
+  </div>
+</div>
+
+<div *ngIf="currentStep === 3 && !bookingSuccess"
+  class="panel border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] p-6 rounded-lg animate__animated animate__fadeIn shadow-sm">
+  <div class="mb-6 flex justify-between items-center">
+    <h5 class="font-bold text-lg dark:text-white-light text-gray-800">Agendamento</h5>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 animate__animated animate__fadeIn">
+    <app-exam-card [exam]="selectedExamObject" [isSummaryMode]="true" (change)="resetStep(1)"
+      (viewDetails)="openDetails(selectedExamObject)">
+    </app-exam-card>
+
+    <app-branch-card [branch]="selectedBranchObject" [isSummaryMode]="true" (change)="resetStep(2)">
+    </app-branch-card>
+  </div>
+
+  <hr class="my-6 border-[#e0e6ed] dark:border-[#1b2e4b]" />
+
+  <div class="animate__animated animate__fadeIn">
+    <h6 class="font-bold text-sm dark:text-white-light text-gray-800 mb-4 block">Escolha seu Horário</h6>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+      <div
+        class="lg:col-span-4 border border-[#e0e6ed] dark:border-[#1b2e4b] bg-white dark:bg-[#0e1726] rounded-xl p-4 shadow-sm w-full max-w-[328px]">
+
+        <div class="flex items-center justify-between mb-4">
+          <button type="button"
+            class="btn btn-outline-secondary p-1 rounded-lg w-8 h-8 flex items-center justify-center transition-colors"
+            (click)="prevMonth()">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+
+          <span class="font-bold text-sm text-gray-700 dark:text-white-light uppercase tracking-wide">
+            {{ currentMonthName }} {{ currentYear }}
+          </span>
+
+          <button type="button"
+            class="btn btn-outline-secondary p-1 rounded-lg w-8 h-8 flex items-center justify-center transition-colors"
+            (click)="nextMonth()">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-7 gap-1 font-bold text-[10px] text-gray-400 uppercase tracking-widest mb-2">
+          <div class="h-8 flex items-center justify-center">Do</div>
+          <div class="h-8 flex items-center justify-center">Se</div>
+          <div class="h-8 flex items-center justify-center">Te</div>
+          <div class="h-8 flex items-center justify-center">Qu</div>
+          <div class="h-8 flex items-center justify-center">Qu</div>
+          <div class="h-8 flex items-center justify-center">Se</div>
+          <div class="h-8 flex items-center justify-center">Sá</div>
+        </div>
+
+        <div class="grid grid-cols-7 gap-1">
+          <button *ngFor="let day of calendarDays" type="button" [disabled]="day.disabled" (click)="selectDate(day)"
+            class="w-8 h-8 sm:w-9 sm:h-9 text-xs font-semibold rounded-full flex items-center justify-center transition-all duration-200 mx-auto"
+            [ngClass]="{
+              'opacity-30 pointer-events-none': !day.isCurrentMonth,
+              'bg-slate-100 dark:bg-slate-800 text-gray-300 cursor-not-allowed': day.disabled,
+              'text-gray-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-800': day.isCurrentMonth && !day.disabled && !isDateSelected(day),
+              'bg-primary text-white shadow-primary/30': isDateSelected(day)
+            }">
+            {{ day.dayNum }}
+          </button>
+        </div>
+      </div>
+
+      <div class="lg:col-span-8 flex flex-col justify-start">
+        <p class="text-xs text-gray-500 mb-4" *ngIf="!selectedDate">
+          Selecione uma data no calendário para visualizar os horários disponíveis.
+        </p>
+        <p class="text-xs font-semibold text-gray-700 dark:text-white-light mb-4" *ngIf="selectedDate">
+          Horários disponíveis para <span class="text-primary">{{ getFormattedDate(selectedDate) }}</span>:
+        </p>
+
+        <div class="grid grid-cols-3 sm:grid-cols-4 xl:grid-cols-5 gap-3" *ngIf="selectedDate">
+          <button *ngFor="let slot of timeSlots" type="button" (click)="selectTimeSlot(slot)"
+            class="h-11 border rounded-lg text-xs font-bold transition-all duration-300 flex items-center justify-center hover:-translate-y-0.5 hover:shadow-sm border-[#e0e6ed] dark:border-[#1b2e4b] hover:border-primary text-gray-700 dark:text-gray-300 hover:text-primary">
+            {{ slot }}
+          </button>
+
+          <button type="button"
+            class="h-11 border border-dashed border-gray-300 dark:border-[#1b2e4b] rounded-lg text-xs font-bold text-gray-400 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+            +
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div *ngIf="currentStep === 4 && !bookingSuccess"
+  class="panel border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] p-6 rounded-lg animate__animated animate__fadeIn shadow-sm">
+  <div class="mb-6 flex justify-between items-center">
+    <h5 class="font-bold text-lg dark:text-white-light text-gray-800">Agendamento</h5>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate__animated animate__fadeIn">
+    <app-exam-card [exam]="selectedExamObject" [isSummaryMode]="true" (change)="resetStep(1)"
+      (viewDetails)="openDetails(selectedExamObject)">
+    </app-exam-card>
+
+    <app-branch-card [branch]="selectedBranchObject" [isSummaryMode]="true" (change)="resetStep(2)">
+    </app-branch-card>
+
+    <div
+      class="panel border border-[#e0e6ed] dark:border-[#1b2e4b] bg-white dark:bg-[#0e1726] p-4.5 rounded-lg flex justify-between items-center h-24">
+      <div>
+        <h6 class="font-extrabold text-gray-800 dark:text-white-light text-[15px] tracking-wide">
+          {{ getFormattedDate(selectedDate) }}
+        </h6>
+        <div class="font-extrabold text-gray-600 dark:text-gray-300 text-[15px] mt-0.5">
+          {{ selectedTime }}
+        </div>
+      </div>
+      <div>
+        <button type="button" (click)="resetStep(3)"
+          class="text-[10px] font-bold border border-[#e0e6ed] dark:border-[#253b5c] px-2 py-0.5 rounded hover:bg-gray-50 dark:hover:bg-[#121e32] text-gray-500 dark:text-gray-400 transition-colors">
+          Alterar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="bookingError" class="alert alert-danger mb-6">
+    <p class="text-xs font-semibold">{{ bookingError }}</p>
+  </div>
+  <div class="flex justify-end border-t border-[#e0e6ed] dark:border-[#1b2e4b] pt-6 animate__animated animate__fadeIn">
+    <button type="button" [disabled]="loading" (click)="confirmAppointment()"
+      class="btn btn-primary h-11 px-8 font-bold flex items-center gap-2.5 transition-all duration-300 shadow-md shadow-primary/20"
+      [ngClass]="loading ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-0.5'">
+      <span *ngIf="loading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+      {{ loading ? 'Processando...' : 'Confirmar' }}
+      <svg *ngIf="!loading" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<div *ngIf="bookingSuccess"
+  class="panel border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] p-10 rounded-lg text-center animate__animated animate__fadeIn max-w-lg mx-auto shadow-lg">
+  <div
+    class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-lg animate-bounce bg-primary shadow-primary/30">
+    <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+  </div>
+
+  <h4 class="text-2xl font-extrabold text-gray-800 dark:text-white-light mb-3">Agendamento Realizado!</h4>
+  <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
+    O seu exame <strong class="text-gray-700 dark:text-gray-200">{{ selectedExamObject?.name }}</strong> foi agendado
+    com sucesso para o dia <strong class="text-gray-700 dark:text-gray-200">{{ getFormattedDate(selectedDate)
+      }}</strong> às <strong class="text-gray-700 dark:text-gray-200">{{ selectedTime }}</strong> na unidade <strong
+      class="text-gray-700 dark:text-gray-200">{{ selectedBranchObject?.name }}</strong>.
+  </p>
+
+  <div class="flex flex-col sm:flex-row gap-4 justify-center">
+    <button type="button"
+      class="btn btn-outline-secondary font-bold h-11 px-6 hover:-translate-y-0.5 transition-transform"
+      (click)="startNewScheduling()">
+      Novo Agendamento
+    </button>
+    <a routerLink="/appointments"
+      class="btn btn-primary font-bold h-11 px-6 flex items-center justify-center hover:-translate-y-0.5 transition-transform shadow-md shadow-primary/20">
+      Ver Meus Agendamentos
+    </a>
+  </div>
+</div>
+
+<!-- Modal de Detalhes do Exame -->
+<ngx-custom-modal *ngIf="isBrowser" #detailsModal>
+  <ng-template #modalHeader>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+          </path>
+        </svg>
+      </div>
+      <div>
+        <span class="text-xs font-bold text-primary uppercase tracking-wider">Detalhes do Exame</span>
+        <h3 class="text-lg font-extrabold text-gray-800 dark:text-white-light leading-none mt-1">
+          {{ selectedExamForDetails?.name }}
+        </h3>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modalBody>
+    <div class="space-y-6 pt-2">
+      <!-- Categoria, Estimativa & Preço -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Categoria -->
+        <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+          <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">Categoria</span>
+          <div class="inline-flex items-center gap-1.5">
+            <span class="text-xs px-2.5 py-0.5 rounded-full font-extrabold inline-block"
+                  [ngClass]="((selectedExamForDetails?.testCategory || selectedExamForDetails?.categoria)?.toLowerCase()?.includes('genet') || selectedExamForDetails?.testCategory === 'GENETICO') ? 'bg-info/10 text-info' : 'bg-primary/10 text-primary'">
+              {{ selectedExamForDetails?.testCategory || selectedExamForDetails?.categoria || 'Outros' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Estimativa de resultado -->
+        <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+          <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">Estimativa de Resultado</span>
+          <div class="flex items-center gap-1.5 text-sm font-bold text-gray-700 dark:text-white-light">
+            <svg class="w-4.5 h-4.5 text-primary shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>{{ selectedExamForDetails?.estimatedResultTime || 'Não informado' }}</span>
+          </div>
+        </div>
+
+        <!-- Preço -->
+        <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+          <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">Preço</span>
+          <div class="flex items-center gap-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400">
+            <svg class="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+              <line x1="12" y1="18" x2="12" y2="18.01"></line>
+              <path d="M17 9h-5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h5"></path>
+              <path d="M10 9H8"></path>
+              <path d="M16 15h2"></path>
+            </svg>
+            <span>{{ selectedExamForDetails?.price ? 'R$ ' + selectedExamForDetails.price.toFixed(2).replace('.', ',') : 'Não informado' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tipo de Amostra -->
+      <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+        <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">Tipo de Amostra</span>
+        <div class="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-white-light">
+          <svg class="w-4.5 h-4.5 text-primary shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5h0c-1.4 0-2.5-1.1-2.5-2.5V2"></path>
+            <path d="M8.5 2h7"></path>
+            <path d="M9.5 12h5"></path>
+          </svg>
+          <span>{{ selectedExamForDetails?.sampleType || 'Não informado' }}</span>
+        </div>
+      </div>
+
+      <!-- Descrição -->
+      <div>
+        <h4 class="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Descrição</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed bg-gray-50/50 dark:bg-[#0e1726]/20 p-4 rounded-xl border border-gray-50 dark:border-gray-800/20 whitespace-pre-line">
+          {{ selectedExamForDetails?.description || 'Nenhuma descrição detalhada disponível.' }}
+        </p>
+      </div>
+
+      <!-- Instruções de Preparação -->
+      <div>
+        <h4 class="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Instruções de Preparação</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed bg-amber-50/40 dark:bg-amber-950/10 p-4 rounded-xl border border-amber-100/30 dark:border-amber-900/10 whitespace-pre-line">
+          {{ selectedExamForDetails?.preparationInstructions || 'Nenhuma instrução especial de preparação é necessária para este exame.' }}
+        </p>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button type="button" (click)="closeDetailsModal()"
+      class="btn btn-outline-secondary px-6 h-10 font-bold text-xs rounded-lg transition-transform hover:-translate-y-0.5">
+      Fechar
+    </button>
+  </ng-template>
+</ngx-custom-modal>

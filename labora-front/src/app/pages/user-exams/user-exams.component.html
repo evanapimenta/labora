@@ -1,0 +1,295 @@
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h5 class="font-bold text-lg dark:text-white-light text-gray-800">Catálogo de Exames</h5>
+    <p class="text-xs text-gray-500 mt-0.5">Consulte todos os exames laboratoriais disponíveis, preparos necessários e prazos de resultado.</p>
+  </div>
+</div>
+
+<div class="panel border-white-light dark:border-[#1b2e4b] bg-white dark:bg-[#191e3a] p-6 rounded-xl shadow-sm mb-6">
+  <!-- Busca e Filtros -->
+  <div class="flex flex-col md:flex-row gap-5 items-center justify-between mb-6">
+    <!-- Barra de Pesquisa -->
+    <div class="relative w-full md:max-w-md group">
+      <input
+        type="text"
+        class="w-full peer form-input pl-11 pr-4 h-11 rounded-xl bg-gray-50 border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-primary placeholder:text-gray-400 placeholder:font-medium dark:bg-[#121e32] dark:hover:bg-[#0e1726] dark:focus:bg-[#0e1726] transition-all duration-200"
+        placeholder="Buscar por nome do exame..."
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="onSearch()"
+      />
+      <div class="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400 peer-focus:text-primary transition-colors duration-200 pointer-events-none">
+        <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+      <button 
+        type="button"
+        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold bg-primary text-white px-3 py-1.5 rounded-lg hover:opacity-90 active:scale-95 transition-all"
+        (click)="onSearch()"
+      >
+        Buscar
+      </button>
+    </div>
+
+    <!-- Pílulas de Categoria -->
+    <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-3 pt-1 scrollbar-none">
+      <button
+        *ngFor="let cat of categories"
+        type="button"
+        (click)="selectCategory(cat.value)"
+        class="px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 whitespace-nowrap"
+        [ngClass]="selectedCategory === cat.value ? 'bg-primary text-white shadow-md shadow-primary/30' : 'bg-gray-100 dark:bg-[#0e1726] text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#121e32]'"
+      >
+        {{ cat.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex flex-col justify-center items-center py-24">
+    <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+    <p class="text-xs text-gray-400 mt-4">Carregando exames...</p>
+  </div>
+
+  <!-- Grid de Cards de Exames -->
+  <div *ngIf="!loading && examsData.length > 0" class="animate__animated animate__fadeIn">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div 
+        *ngFor="let exam of examsData" 
+        (click)="openDetails(exam)"
+        class="group panel border border-gray-100 dark:border-[#1b2e4b] bg-white dark:bg-[#0e1726] rounded-2xl p-5 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col justify-between min-h-[260px] cursor-pointer"
+      >
+        <!-- Top Section -->
+        <div>
+          <div class="flex justify-between items-start gap-2 mb-3">
+            <span class="text-[10px] px-2.5 py-0.5 rounded-full font-extrabold uppercase tracking-wider bg-primary/10 text-primary shrink-0">
+              {{ exam.category || 'Outros' }}
+            </span>
+            <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
+              {{ exam.price ? 'R$ ' + exam.price.toFixed(2).replace('.', ',') : 'Sob consulta' }}
+            </span>
+          </div>
+          
+          <h6 class="font-extrabold text-sm text-gray-800 dark:text-white-light leading-snug group-hover:text-primary transition-colors line-clamp-2 mb-2">
+            {{ exam.name }}
+          </h6>
+          
+          <p class="text-xs text-gray-400 dark:text-gray-500 line-clamp-3 leading-relaxed mb-4">
+            {{ exam.description || 'Nenhuma descrição detalhada disponível.' }}
+          </p>
+        </div>
+
+        <!-- Middle Info Table -->
+        <div class="border-t border-b border-gray-50 dark:border-gray-800/60 py-3 my-4 flex items-center justify-between text-[11px] font-bold text-gray-500 dark:text-gray-400">
+          <div class="flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 opacity-70 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5h0c-1.4 0-2.5-1.1-2.5-2.5V2"></path>
+              <path d="M8.5 2h7"></path>
+              <path d="M9.5 12h5"></path>
+            </svg>
+            <span>{{ exam.sampleType || 'Não informado' }}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 opacity-70 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>{{ exam.estimatedResultTime || exam.duration || 'N/A' }}</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-3">
+          <button 
+            type="button" 
+            class="btn btn-outline-primary py-2 px-3 text-xs font-bold rounded-xl hover:-translate-y-0.5 transition-transform"
+            (click)="openPreparo(exam); $event.stopPropagation()"
+          >
+            Ver Preparo
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-primary py-2 px-3 text-xs font-bold rounded-xl hover:-translate-y-0.5 transition-transform shadow-md shadow-primary/15"
+            (click)="scheduleExam(exam); $event.stopPropagation()"
+          >
+            Agendar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paginação -->
+    <div *ngIf="totalPages > 1" class="flex justify-center items-center gap-2 mt-8">
+      <button type="button" class="btn btn-sm rounded-lg p-2 transition-all duration-300"
+        [ngClass]="currentPage === 1 ? 'btn-outline-secondary opacity-50 cursor-not-allowed' : 'btn-outline-primary'"
+        [disabled]="currentPage === 1" (click)="prevPage()">
+        <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <button *ngFor="let page of pageNumbers" type="button"
+        class="btn btn-sm w-9 h-9 rounded-lg font-bold transition-all duration-300"
+        [ngClass]="currentPage === page ? 'btn-primary text-white' : 'btn-outline-primary hover:bg-primary hover:text-white'"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+
+      <button type="button" class="btn btn-sm rounded-lg p-2 transition-all duration-300"
+        [ngClass]="currentPage === totalPages ? 'btn-outline-secondary opacity-50 cursor-not-allowed' : 'btn-outline-primary'"
+        [disabled]="currentPage === totalPages" (click)="nextPage()">
+        <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && examsData.length === 0"
+    class="text-center py-20 bg-gray-50 dark:bg-[#121e32] rounded-2xl border border-dashed border-gray-200 dark:border-[#1b2e4b] animate__animated animate__fadeIn">
+    <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <p class="text-gray-500 dark:text-gray-400 text-lg font-bold">Nenhum exame encontrado</p>
+    <p class="text-gray-400 text-xs mt-1">Tente digitar outros termos ou mudar a categoria selecionada.</p>
+  </div>
+</div>
+
+<!-- Modal de Detalhes do Exame -->
+<ngx-custom-modal *ngIf="isBrowser" #detailsModal>
+  <ng-template #modalHeader>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+          </path>
+        </svg>
+      </div>
+      <div>
+        <span class="text-xs font-bold text-primary uppercase tracking-wider">Detalhes do Exame</span>
+        <h3 class="text-base font-extrabold text-gray-800 dark:text-white-light leading-none mt-1">
+          {{ selectedExamForDetails?.name }}
+        </h3>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modalBody>
+    <div class="space-y-6 pt-2">
+      <!-- Categoria, Estimativa & Preço -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Categoria -->
+        <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+          <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">Categoria</span>
+          <div class="inline-flex items-center gap-1.5">
+            <span class="text-xs px-2.5 py-0.5 rounded-full font-extrabold inline-block"
+                  [ngClass]="(selectedExamForDetails?.category?.toLowerCase()?.includes('genet') || selectedExamForDetails?.category === 'GENETICO') ? 'bg-info/10 text-info' : 'bg-primary/10 text-primary'">
+              {{ selectedExamForDetails?.category || 'Outros' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Estimativa de resultado -->
+        <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+          <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">Resultado</span>
+          <div class="flex items-center gap-1.5 text-sm font-bold text-gray-700 dark:text-white-light">
+            <svg class="w-4.5 h-4.5 text-primary shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>{{ selectedExamForDetails?.estimatedResultTime || selectedExamForDetails?.duration || 'Não informado' }}</span>
+          </div>
+        </div>
+
+        <!-- Preço -->
+        <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+          <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">Preço</span>
+          <div class="flex items-center gap-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400">
+            <svg class="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+              <line x1="12" y1="18" x2="12" y2="18.01"></line>
+              <path d="M17 9h-5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h5"></path>
+              <path d="M10 9H8"></path>
+              <path d="M16 15h2"></path>
+            </svg>
+            <span>{{ selectedExamForDetails?.price ? 'R$ ' + selectedExamForDetails.price.toFixed(2).replace('.', ',') : 'Não informado' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tipo de Amostra -->
+      <div class="p-4 rounded-xl bg-gray-50 dark:bg-[#0e1726]/40 border border-gray-100 dark:border-gray-800/40">
+        <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide block mb-1">Tipo de Amostra</span>
+        <div class="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-white-light">
+          <svg class="w-4.5 h-4.5 text-primary shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5h0c-1.4 0-2.5-1.1-2.5-2.5V2"></path>
+            <path d="M8.5 2h7"></path>
+            <path d="M9.5 12h5"></path>
+          </svg>
+          <span>{{ selectedExamForDetails?.sampleType || 'Não informado' }}</span>
+        </div>
+      </div>
+
+      <!-- Descrição -->
+      <div>
+        <h4 class="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Descrição</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed bg-gray-50/50 dark:bg-[#0e1726]/20 p-4 rounded-xl border border-gray-50 dark:border-gray-800/20 whitespace-pre-line">
+          {{ selectedExamForDetails?.description || 'Nenhuma descrição detalhada disponível.' }}
+        </p>
+      </div>
+
+      <!-- Instruções de Preparação -->
+      <div>
+        <h4 class="text-xs font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Instruções de Preparação</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed bg-amber-50/40 dark:bg-amber-950/10 p-4 rounded-xl border border-amber-100/30 dark:border-amber-900/10 whitespace-pre-line">
+          {{ selectedExamForDetails?.preparationInstructions || 'Nenhuma instrução especial de preparação é necessária para este exame.' }}
+        </p>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button type="button" (click)="closeDetailsModal()"
+      class="btn btn-outline-secondary px-6 h-10 font-bold text-xs rounded-lg transition-transform hover:-translate-y-0.5">
+      Fechar
+    </button>
+  </ng-template>
+</ngx-custom-modal>
+
+<!-- Modal de Preparo do Exame -->
+<ngx-custom-modal *ngIf="isBrowser" #preparoModal>
+  <ng-template #modalHeader>
+    <div class="flex items-center gap-3">
+      <span class="w-1 h-5 bg-primary rounded-full"></span>
+      <h3 class="text-base font-extrabold text-gray-800 dark:text-white-light leading-none">
+        Preparo para {{ selectedExamForPreparo?.name }}
+      </h3>
+    </div>
+  </ng-template>
+
+  <ng-template #modalBody>
+    <div class="space-y-4 pt-2">
+      <div class="bg-primary/5 rounded-2xl p-5 border border-primary/10 flex gap-4">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+        </div>
+        <div class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line font-medium flex-1">
+          {{ selectedExamForPreparo?.preparationInstructions || 'Nenhuma instrução especial de preparação é necessária para este exame.' }}
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button type="button" (click)="closePreparoModal()"
+      class="btn btn-primary px-6 h-10 font-bold text-xs rounded-xl transition-transform hover:-translate-y-0.5 shadow-md shadow-primary/15">
+      Entendi
+    </button>
+  </ng-template>
+</ngx-custom-modal>

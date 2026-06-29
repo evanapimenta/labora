@@ -1,0 +1,14 @@
+<div class="relative group">
+  <input
+    type="text"
+    class="peer form-input pl-11 pr-4 h-11 rounded-xl bg-gray-50 border-transparent hover:bg-white hover:border-gray-200 focus:bg-white focus:border-primary placeholder:text-gray-400 placeholder:font-medium dark:bg-[#121e32] dark:hover:bg-[#0e1726] dark:focus:bg-[#0e1726]"
+    [placeholder]="placeholder"
+    [(ngModel)]="value"
+    [disabled]="disabled"
+    (input)="onInputChange()"
+    (keyup.enter)="onEnterPress()"
+  />
+  <div class="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400 peer-focus:text-primary transition-colors duration-200 pointer-events-none">
+    <icon-search class="h-4.5 w-4.5" />
+  </div>
+</div>
