@@ -21,9 +21,9 @@ graph TB
     FRONT -->|"Proxy /api → :8080"| AGENDAMENTO["labora-agendamento<br/>(Spring Boot 3.4)"]
     PANEL -->|"Server Actions (Server-side) → :3001"| API["labora-api<br/>(Express API)"]
     PANEL -->|"Server Actions (Server-side) → :8080"| AGENDAMENTO
+    AGENDAMENTO -->|"RestClient Call"| API
 
     subgraph "Bancos de Dados & Serviços"
-        AGENDAMENTO -->|"JPA"| DB_REL[(Banco Relacional)]
         API -->|"Mongoose"| DB_NOSQL[(MongoDB)]
         AGENDAMENTO -->|"SSO / SMTP / Geocoding"| EXT_SERVICES["Google OAuth2 / Gmail / Nominatim"]
         PANEL -->|"S3 API"| R2["Cloudflare R2 (Storage)"]
@@ -46,7 +46,7 @@ Em arquiteturas tradicionais, o navegador do usuário faz requisições HTTP dir
 
 ### Vantagens do BFF no Projeto Labora
 * **Segurança Robusta (HttpOnly Cookies):** O navegador nunca tem acesso direto aos tokens JWT das APIs de backend. O Next.js recebe os tokens e os salva em cookies criptografados e marcados como `HttpOnly`. O JavaScript do navegador fica blindado contra ataques XSS de roubo de sessão.
-* **Orquestração de Dados:** Para gerar uma tela de relatório ou dashboard complexo, o BFF pode bater tanto no banco relacional (via Spring Boot) quanto no MongoDB (via Express API), combinar essas informações do lado do servidor (onde a rede é extremamente rápida) e entregar um payload único e otimizado ao frontend.
+* **Orquestração de Dados:** Para gerar uma tela de relatório ou dashboard complexo, o BFF pode bater tanto no gateway Spring Boot quanto na API em Node.js, consolidando informações do lado do servidor (onde a rede é extremamente rápida) e entregando um payload único e otimizado ao frontend.
 * **Menor Superfície de Ataque:** Nossas APIs de backend (`labora-api` e `labora-agendamento`) podem ficar protegidas em uma rede privada ou com acesso restrito, não precisando ficar totalmente expostas de forma pública na internet.
 
 ---
@@ -61,9 +61,9 @@ Interface limpa e rápida voltada para o paciente realizar agendamentos.
 * **Porta Padrão:** `4200`
 * **Comunicação:** Utiliza um proxy reverso interno configurado em `proxy.conf.json` para direcionar requisições `/api` ao backend na porta `8080`.
 
-### 2. [labora-agendamento](./labora-agendamento) (Backend de Agendamentos)
-API principal que lida com as regras de negócio de agendamentos, usuários e clínicas.
-* **Tecnologias:** Java 21, Spring Boot 3.4, Spring Security, Spring Data JPA, Hibernate Validator, Springdoc OpenAPI.
+### 2. [labora-agendamento](./labora-agendamento) (Fachada de Serviços / Backend Principal)
+Serviço principal que funciona como uma Fachada (Facade) e Gateway. Ele lida com a autenticação (Spring Security + JWT), envio de e-mails e geocodificação, e delega os dados à API Express via RestClient.
+* **Tecnologias:** Java 21, Spring Boot 3.4, Spring Security, RestClient, Hibernate Validator, Springdoc OpenAPI.
 * **Serviços Externos:** Google SSO (OAuth2), Gmail SMTP (Notificações) e Nominatim API (Geocoding de endereços).
 * **Porta Padrão:** `8080` (context-path: `/api`)
 
@@ -87,7 +87,7 @@ Serviço de apoio que gerencia filiais, laboratórios, dados analíticos e audit
 |---------|-------|------|---------|
 | **labora-front** | `4200` | Angular SSR | → `8080` (labora-agendamento) |
 | **labora-admin-panel** | `3000` | Next.js (BFF) | → `3001` (labora-api) e `8080` (labora-agendamento) |
-| **labora-agendamento** | `8080` | Spring Boot REST | → Banco Relacional, APIs externas (Google, Nominatim) |
+| **labora-agendamento** | `8080` | Spring Boot REST | → `3001` (labora-api) via RestClient, APIs externas |
 | **labora-api** | `3001` | Express REST | → MongoDB |
 
 ---
