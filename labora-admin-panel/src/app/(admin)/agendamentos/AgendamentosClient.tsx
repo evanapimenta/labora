@@ -70,6 +70,8 @@ export default function AgendamentosClient({
 }: AgendamentosClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [selectedRange, setSelectedRange] = useState(currentRange);
+  const [selectedDateState, setSelectedDateState] = useState(selectedDate);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [activeTab, setActiveTab] = useState<"agenda" | "pendencias">("agenda");
@@ -155,17 +157,70 @@ export default function AgendamentosClient({
     setShowDropdown(false);
   };
 
+  React.useEffect(() => {
+    setSelectedRange(currentRange);
+  }, [currentRange]);
+
+  React.useEffect(() => {
+    setSelectedDateState(selectedDate);
+  }, [selectedDate]);
+
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = e.target.value;
-    router.push(`?range=custom&date=${newDate}`);
+    setSelectedDateState(newDate);
+    setSelectedRange("custom");
+
+    // Shallow url update
+    router.replace(`?range=custom&date=${newDate}`, { scroll: false });
+
+    startTransition(async () => {
+      if (activeBranch) {
+        const data = await getAppointments(activeBranch._id, newDate);
+        setAppointments(data);
+      }
+    });
   };
 
   const handleRangeChange = (newRange: string) => {
-    if (newRange === "custom") {
-      router.push(`?range=custom&date=${selectedDate}`);
-    } else {
-      router.push(`?range=${newRange}`);
+    setSelectedRange(newRange);
+    
+    let dateQuery: string | undefined = "2026-06-09";
+    const baseDate = "2026-06-09";
+
+    if (newRange === "today") {
+      dateQuery = baseDate;
+    } else if (newRange === "5days") {
+      const start = new Date(baseDate);
+      const end = new Date(baseDate);
+      end.setDate(end.getDate() + 4);
+      const startStr = start.toISOString().split('T')[0];
+      const endStr = end.toISOString().split('T')[0];
+      dateQuery = `${startStr}:${endStr}`;
+    } else if (newRange === "30days") {
+      const start = new Date(baseDate);
+      const end = new Date(baseDate);
+      end.setDate(end.getDate() + 29);
+      const startStr = start.toISOString().split('T')[0];
+      const endStr = end.toISOString().split('T')[0];
+      dateQuery = `${startStr}:${endStr}`;
+    } else if (newRange === "custom") {
+      dateQuery = selectedDateState;
+    } else if (newRange === "all") {
+      dateQuery = undefined;
     }
+
+    if (newRange === "custom") {
+      router.replace(`?range=custom&date=${selectedDateState}`, { scroll: false });
+    } else {
+      router.replace(`?range=${newRange}`, { scroll: false });
+    }
+
+    startTransition(async () => {
+      if (activeBranch) {
+        const data = await getAppointments(activeBranch._id, dateQuery);
+        setAppointments(data);
+      }
+    });
   };
 
   const handleStatusUpdate = async (id: string, newStatus: Status) => {
@@ -302,7 +357,7 @@ export default function AgendamentosClient({
                   onClick={() => handleRangeChange("all")}
                   className={cn(
                     "h-8 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap",
-                    currentRange === "all"
+                    selectedRange === "all"
                       ? "bg-card text-foreground shadow-sm font-bold border border-border/40"
                       : "text-muted-foreground hover:text-foreground border border-transparent"
                   )}
@@ -313,7 +368,7 @@ export default function AgendamentosClient({
                   onClick={() => handleRangeChange("today")}
                   className={cn(
                     "h-8 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap",
-                    currentRange === "today"
+                    selectedRange === "today"
                       ? "bg-card text-foreground shadow-sm font-bold border border-border/40"
                       : "text-muted-foreground hover:text-foreground border border-transparent"
                   )}
@@ -324,7 +379,7 @@ export default function AgendamentosClient({
                   onClick={() => handleRangeChange("5days")}
                   className={cn(
                     "h-8 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap",
-                    currentRange === "5days"
+                    selectedRange === "5days"
                       ? "bg-card text-foreground shadow-sm font-bold border border-border/40"
                       : "text-muted-foreground hover:text-foreground border border-transparent"
                   )}
@@ -335,7 +390,7 @@ export default function AgendamentosClient({
                   onClick={() => handleRangeChange("30days")}
                   className={cn(
                     "h-8 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap",
-                    currentRange === "30days"
+                    selectedRange === "30days"
                       ? "bg-card text-foreground shadow-sm font-bold border border-border/40"
                       : "text-muted-foreground hover:text-foreground border border-transparent"
                   )}
@@ -346,7 +401,7 @@ export default function AgendamentosClient({
                   onClick={() => handleRangeChange("custom")}
                   className={cn(
                     "h-8 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap",
-                    currentRange === "custom"
+                    selectedRange === "custom"
                       ? "bg-card text-foreground shadow-sm font-bold border border-border/40"
                       : "text-muted-foreground hover:text-foreground border border-transparent"
                   )}
@@ -355,10 +410,10 @@ export default function AgendamentosClient({
                 </button>
               </div>
 
-              {currentRange === "custom" && (
+              {selectedRange === "custom" && (
                 <input
                   type="date"
-                  value={selectedDate}
+                  value={selectedDateState}
                   onChange={handleDateChange}
                   className="h-10 px-3 rounded-lg border border-border bg-card text-sm focus:border-ring focus:ring-2 focus:ring-ring/20 focus:outline-none cursor-pointer animate-in fade-in slide-in-from-left-1 duration-150"
                 />
@@ -448,7 +503,32 @@ export default function AgendamentosClient({
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filteredAppointments.length === 0 ? (
+              {isPending ? (
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <tr key={`skeleton-${idx}`} className="animate-pulse">
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-muted-foreground/15 rounded w-24"></div>
+                      <div className="h-3 bg-muted-foreground/10 rounded w-12 mt-1.5"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-muted-foreground/15 rounded w-32"></div>
+                      <div className="h-3 bg-muted-foreground/10 rounded w-20 mt-1.5"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-muted-foreground/15 rounded w-40"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-muted-foreground/15 rounded w-28"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-6 bg-muted-foreground/15 rounded-full w-20"></div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="h-8 bg-muted-foreground/15 rounded w-16 ml-auto"></div>
+                    </td>
+                  </tr>
+                ))
+              ) : filteredAppointments.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center py-12 text-muted-foreground">
                     {activeTab === "agenda"
