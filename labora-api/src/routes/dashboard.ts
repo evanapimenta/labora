@@ -6,6 +6,7 @@ import Branch from '../models/Branch';
 import Rating from '../models/Rating';
 import Laboratory from '../models/Laboratory';
 import Admin from '../models/Admin';
+import User from '../models/User';
 
 const router = Router();
 
@@ -414,8 +415,12 @@ router.post('/consolidated', async (req, res) => {
       .populate('exam')
       .lean() as any[];
 
+    const patientIds = [...new Set(recentAppointmentsDocs.map(a => a.patient))];
+    const users = await User.find({ id: { $in: patientIds } }).select('id name').lean();
+    const userMap = new Map(users.map((u: any) => [u.id, u.name]));
+
     const recentAppointments = recentAppointmentsDocs.map(a => ({
-      patient: a.patient,
+      patient: userMap.get(a.patient) || a.patient,
       exam: a.exam?.name || a.exam?.nome_exame || 'Exame Indefinido',
       branch: stripLabName(a.branchId?.name || 'Sem Filial'),
       date: a.date,
@@ -525,6 +530,10 @@ router.post('/export-data', async (req, res) => {
       .populate("exam")
       .lean() as any[];
 
+    const appointmentsPatientIds = [...new Set(appointments.map(a => a.patient))];
+    const appointmentsUsers = await User.find({ id: { $in: appointmentsPatientIds } }).select('id name').lean();
+    const appointmentsUserMap = new Map(appointmentsUsers.map((u: any) => [u.id, u.name]));
+
     let periodLabel = "";
 
     const buckets: Array<{ dateKey: string; tooltipLabel: string; count: number }> = [];
@@ -621,7 +630,7 @@ router.post('/export-data', async (req, res) => {
       if (a.status === "Cancelado") totalCancellations++;
 
       detail.push({
-        patient: a.patient ?? "",
+        patient: appointmentsUserMap.get(a.patient) || a.patient || "",
         exam: resolveExamName(a),
         branch: branchName,
         date: a.date ?? "",

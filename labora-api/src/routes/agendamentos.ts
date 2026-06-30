@@ -284,10 +284,16 @@ router.post('/', async (req, res) => {
       );
     }
 
+    let patientName = appointment.patient;
+    const patientUser = await User.findOne({ id: appointment.patient }).select('name').lean() as any;
+    if (patientUser) {
+      patientName = patientUser.name;
+    }
+
     return res.status(201).json({
       _id: String(appointment._id),
       id: String(appointment._id),
-      patient: appointment.patient,
+      patient: patientName,
       cpf: appointment.cpf,
       date: appointment.date,
       time: appointment.time,
