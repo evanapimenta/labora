@@ -72,7 +72,7 @@ async function seedToday() {
       if (hours === '08' || hours === '10') status = 'Realizado';
 
       await Appointment.create({
-        patient: user.name,
+        patient: user.id,
         cpf: randomPatient.cpf,
         date: dateStr,
         time: timeStr,

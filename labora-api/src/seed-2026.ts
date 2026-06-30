@@ -25,8 +25,8 @@ async function seed() {
 
   const userPatientPairs = existingPatients.map(p => {
     const u = existingUsers.find(usr => usr.id === p.id);
-    return u ? { name: u.name, cpf: p.cpf } : null;
-  }).filter(Boolean) as { name: string; cpf: string }[];
+    return u ? { id: u.id, name: u.name, cpf: p.cpf } : null;
+  }).filter(Boolean) as { id: string; name: string; cpf: string }[];
 
   if (!exams.length || !branches.length || !userPatientPairs.length) {
     console.error('No exams, branches or patients found. Please run seed-2025 first.');
@@ -73,7 +73,7 @@ async function seed() {
       const aptDate = new Date(2026, month, day);
       
       await Appointment.create({
-        patient: patient.name,
+        patient: patient.id,
         cpf: patient.cpf,
         date: aptDate.toISOString().split('T')[0],
         time: `${hour.toString().padStart(2, '0')}:00`,

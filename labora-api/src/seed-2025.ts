@@ -33,8 +33,8 @@ async function seed() {
 
   let newPatients = existingPatients.map(p => {
     const u = existingUsers.find(usr => usr.id === p.id);
-    return u ? { name: u.name, cpf: p.cpf } : null;
-  }).filter(Boolean) as { name: string; cpf: string }[];
+    return u ? { id: u.id, name: u.name, cpf: p.cpf } : null;
+  }).filter(Boolean) as { id: string; name: string; cpf: string }[];
 
   if (newPatients.length === 0) {
     console.log('Nenhum paciente existente encontrado. Criando 100 pacientes de teste...');
@@ -69,7 +69,7 @@ async function seed() {
         }
       });
 
-      newPatients.push({ name: user.name, cpf: patient.cpf });
+      newPatients.push({ id: user.id, name: user.name, cpf: patient.cpf });
     }
   } else {
     console.log(`Usando os ${newPatients.length} pacientes existentes na collection users.`);
@@ -116,7 +116,7 @@ async function seed() {
       const aptDate = new Date(2025, month, day);
 
       await Appointment.create({
-        patient: patient.name,
+        patient: patient.id,
         cpf: patient.cpf,
         date: aptDate.toISOString().split('T')[0],
         time: `${hour.toString().padStart(2, '0')}:00`,

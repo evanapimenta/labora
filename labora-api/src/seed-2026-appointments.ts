@@ -79,7 +79,7 @@ async function seed() {
       const status = statuses[Math.floor(Math.random() * statuses.length)];
 
       const appt = await Appointment.create({
-        patient: user.name,
+        patient: user.id,
         cpf: randomPatient.cpf,
         date: dateStr,
         time: timeStr,
