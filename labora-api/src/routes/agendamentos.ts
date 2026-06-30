@@ -256,7 +256,26 @@ router.post('/', async (req, res) => {
       }
 
       if (candidates.length > 0) {
-        operator = candidates[Math.floor(Math.random() * candidates.length)];
+        const candidateIds = candidates.map(c => c._id);
+        const busyAppointments = await Appointment.find({
+          date,
+          time,
+          operator: { $in: candidateIds },
+          status: { $ne: "Cancelado" }
+        })
+          .select("operator")
+          .lean();
+
+        const busyOperatorIds = new Set(busyAppointments.map(a => String(a.operator)));
+        const availableCandidates = candidates.filter(c => !busyOperatorIds.has(String(c._id)));
+
+        if (availableCandidates.length > 0) {
+          operator = availableCandidates[Math.floor(Math.random() * availableCandidates.length)];
+        } else {
+          return res.status(400).json({ error: "Não há operadores disponíveis para este horário." });
+        }
+      } else {
+        return res.status(400).json({ error: "Nenhum operador cadastrado ou ativo para esta filial." });
       }
     }
 
