@@ -11,6 +11,7 @@ import Exam from './models/Exam';
 import Branch from './models/Branch';
 import Appointment from './models/Appointment';
 import ExamResult from './models/ExamResult';
+import Admin from './models/Admin';
 
 async function seed() {
   const uri = process.env.MONGODB_URI;
@@ -27,6 +28,26 @@ async function seed() {
   if (!patients.length || !exams.length || !branches.length || !users.length) {
     console.error('Missing patients, users, exams, or branches. Cannot seed.');
     process.exit(1);
+  }
+
+  // Obter ou criar um operador TECH
+  const techAdmins = await Admin.find({ scope: 'TECH' }).lean() as any[];
+  let techAdminId: mongoose.Types.ObjectId;
+  if (techAdmins.length === 0) {
+    console.log('Nenhum operador TECH encontrado. Criando operador TECH de teste...');
+    const newTech = await Admin.create({
+      id: Math.floor(Math.random() * 9000) + 1000,
+      name: 'Técnico de Laboratório',
+      username: 'tecnico_seed_2026_appt',
+      email: 'tecnico_2026_appt@seed.com',
+      phoneNumber: '11999999999',
+      scope: 'TECH',
+      assignedTo: [branches[0]._id],
+      status: 'Ativo'
+    });
+    techAdminId = newTech._id;
+  } else {
+    techAdminId = techAdmins[Math.floor(Math.random() * techAdmins.length)]._id;
   }
 
   console.log(`Found ${patients.length} patients, ${exams.length} exams, ${branches.length} branches.`);
@@ -64,7 +85,8 @@ async function seed() {
         time: timeStr,
         exam: randomExam._id,
         branchId: branch._id,
-        status: status
+        status: status,
+        operator: techAdminId
       });
       appointmentsCreated++;
 

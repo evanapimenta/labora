@@ -10,6 +10,7 @@ import Patient from './models/Patient';
 import Appointment from './models/Appointment';
 import Exam from './models/Exam';
 import Branch from './models/Branch';
+import Admin from './models/Admin';
 
 async function seed() {
   const uri = process.env.MONGODB_URI;
@@ -26,41 +27,72 @@ async function seed() {
     process.exit(1);
   }
 
-  console.log('Criando 100 pacientes...');
-  const newPatients = [];
+  // Get existing users & patients
+  const existingUsers = await User.find({ role: 'PATIENT' }).lean() as any[];
+  const existingPatients = await Patient.find({ id: { $in: existingUsers.map(u => u.id) } }).lean() as any[];
 
-  for (let i = 0; i < 100; i++) {
-    const id = crypto.randomUUID();
-    const cpf = Math.floor(Math.random() * 90000000000) + 10000000000;
+  let newPatients = existingPatients.map(p => {
+    const u = existingUsers.find(usr => usr.id === p.id);
+    return u ? { name: u.name, cpf: p.cpf } : null;
+  }).filter(Boolean) as { name: string; cpf: string }[];
 
-    // 1. Create User
-    const user = await User.create({
-      id: id,
-      name: `Paciente Teste ${i + 1}`,
-      email: `paciente${i + 1}@teste.com`,
-      active: true,
-      role: 'PATIENT',
-      verified: true
+  if (newPatients.length === 0) {
+    console.log('Nenhum paciente existente encontrado. Criando 100 pacientes de teste...');
+    for (let i = 0; i < 100; i++) {
+      const id = crypto.randomUUID();
+      const cpf = Math.floor(Math.random() * 90000000000) + 10000000000;
+
+      // 1. Create User
+      const user = await User.create({
+        id: id,
+        name: `Paciente Teste ${i + 1}`,
+        email: `paciente${i + 1}@teste.com`,
+        active: true,
+        role: 'PATIENT',
+        verified: true
+      });
+
+      // 2. Create Patient
+      const patient = await Patient.create({
+        id: id,
+        cpf: String(cpf),
+        phoneNumber: `119${Math.floor(Math.random() * 90000000)}`,
+        gender: ['MASCULINO', 'FEMININO', 'OUTRO'][Math.floor(Math.random() * 3)],
+        address: {
+          street: 'Rua Exemplo',
+          number: String(i + 1),
+          neighborhood: 'Bairro',
+          city: 'São Paulo',
+          state: 'SP',
+          zipCode: '01000-000',
+          country: 'Brasil'
+        }
+      });
+
+      newPatients.push({ name: user.name, cpf: patient.cpf });
+    }
+  } else {
+    console.log(`Usando os ${newPatients.length} pacientes existentes na collection users.`);
+  }
+
+  // Obter ou criar um operador TECH
+  const techAdmins = await Admin.find({ scope: 'TECH' }).lean() as any[];
+  let techAdminId: mongoose.Types.ObjectId;
+  if (techAdmins.length === 0) {
+    console.log('Nenhum operador TECH encontrado. Criando operador TECH de teste...');
+    const newTech = await Admin.create({
+      id: Math.floor(Math.random() * 9000) + 1000,
+      name: 'Técnico de Laboratório',
+      username: 'tecnico_seed',
+      email: 'tecnico@seed.com',
+      phoneNumber: '11999999999',
+      scope: 'TECH',
+      assignedTo: [branches[0]._id],
+      status: 'Ativo'
     });
-
-    // 2. Create Patient
-    const patient = await Patient.create({
-      id: id,
-      cpf: String(cpf),
-      phoneNumber: `119${Math.floor(Math.random() * 90000000)}`,
-      gender: ['MASCULINO', 'FEMININO', 'OUTRO'][Math.floor(Math.random() * 3)],
-      address: {
-        street: 'Rua Exemplo',
-        number: String(i + 1),
-        neighborhood: 'Bairro',
-        city: 'São Paulo',
-        state: 'SP',
-        zipCode: '01000-000',
-        country: 'Brasil'
-      }
-    });
-
-    newPatients.push({ name: user.name, cpf: patient.cpf });
+    techAdminId = newTech._id;
+  } else {
+    techAdminId = techAdmins[Math.floor(Math.random() * techAdmins.length)]._id;
   }
 
   console.log('Criando agendamentos para 2025...');
@@ -90,7 +122,8 @@ async function seed() {
         time: `${hour.toString().padStart(2, '0')}:00`,
         exam: exam._id,
         branchId: branch._id,
-        status: status
+        status: status,
+        operator: techAdminId
       });
     }
   }
